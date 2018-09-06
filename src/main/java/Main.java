@@ -8,7 +8,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("Graphics/interface.fxml"));
+        var fxml_file = getClass().getResource("main/java/Graphics/interface.fxml");
+        Parent root = FXMLLoader.load(fxml_file);
         primaryStage.setTitle("Omega AI");
         primaryStage.setScene(new Scene(root, 800, 800));
         primaryStage.show();

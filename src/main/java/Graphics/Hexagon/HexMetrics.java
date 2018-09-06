@@ -16,14 +16,19 @@ public class HexMetrics {
         width       = this.radius * Math.sqrt(3);
         height      = this.radius * 2;
         side        = this.radius * 3. / 2;
+
+        // Initialize the relative corners for a pointy hexagon
         cornersX    = new double[]{width/2, width, width, width/2, 0, 0};
         cornersY    = new double[]{0, .25*height, .75*height, height, .75*height, .25*height};
     }
 
+    /**
+     * Compute the corners of the hexagon at hex index [q,r]
+     */
     private double x_correction = -1;
-    public ArrayList<double[]> computeCorners(int x, int y, double[] cX, double[] cY) {
-        var mX = radius * (Math.sqrt(3) * x + Math.sqrt(3)/2 * y);
-        var mY = y * side;
+    public ArrayList<double[]> computeCorners(int q, int r, double[] cX, double[] cY) {
+        var mX = radius * (Math.sqrt(3) * q + Math.sqrt(3)/2 * r);
+        var mY = r * side;
         if (x_correction == -1) x_correction = mX;
         for (int i=0; i<6; i++) {
             cX[i] = mX + cornersX[i] - x_correction;
@@ -33,7 +38,7 @@ public class HexMetrics {
     }
 
     /**
-     * Finds the hex index from a pixel coordinate
+     * Finds the hex index [q,r] from a canvas pixel coordinate [x,y]
      */
     public double[] pixel_to_hex(double x, double y) {
         double q = ((Math.sqrt(3)/3) * (x+x_correction) - (1./3) * y) / radius;
