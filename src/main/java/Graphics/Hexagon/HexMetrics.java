@@ -1,6 +1,7 @@
 package Graphics.Hexagon;
 
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class HexMetrics {
@@ -26,7 +27,9 @@ public class HexMetrics {
      * Compute the corners of the hexagon at hex index [q,r]
      */
     private double x_correction = -1;
-    public ArrayList<double[]> computeCorners(int q, int r, double[] cX, double[] cY) {
+    public ArrayList<double[]> computeCorners(int q, int r) {
+        double[] cX = new double[6];
+        double[] cY = new double[6];
         double mX = radius * (Math.sqrt(3) * q + Math.sqrt(3)/2 * r);
         double mY = r * side;
         if (x_correction == -1) x_correction = mX;
@@ -46,24 +49,20 @@ public class HexMetrics {
         return new double[]{q, r};
     }
 
-    public boolean isBoundingHex(ArrayList<double[]> hexagon) {
-        return false;
+    /**
+     * Evaluate whether the point [pointX, pointY] is within the convex hull of the polygon [cornersX, cornersY]
+     */
+    public boolean isBoundingHex(double[] cornersX, double[] cornersY, int pointX, int pointY) {
+        int[] cornersX_i = new int[cornersX.length];
+        int[] cornersY_i = new int[cornersY.length];
+        for (int x = 0; x < cornersX.length; x++) {
+            cornersX_i[x] = (int) cornersX[x];
+        }
+        for (int y = 0; y < cornersY.length; y++) {
+            cornersY_i[y] = (int) cornersY[y];
+        }
+        Polygon poly = new Polygon(cornersX_i, cornersY_i, cornersX.length);
+        boolean contains = poly.contains(new Point(pointX, pointY));
+        return contains;
     }
-
-//    private double[] indexByPoint(double x, double y) {
-//        Double ci = Math.floor(x / side);
-//        Double cx = x - side * ci;
-//
-//        Double ty = y - (ci % 2) * height / 2;
-//        Double cj = Math.floor(ty / height);
-//        Double cy = ty - height * cj;
-//
-//        if (cx > Math.abs(radius / 2 - radius * cy / height)) {
-//            return new double[]{ci.intValue(), cj.intValue()};
-//        } else {
-//            Double r_ci = ci - 1;
-//            Double r_cj = cj + (ci % 2) - (cy < height / 2 ? 1 : 0);
-//            return new double[]{r_ci.intValue(), r_cj.intValue()};
-//        }
-//    }
 }

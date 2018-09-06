@@ -22,12 +22,10 @@ public class HexBoard extends Canvas {
     private int size;
     private HexMetrics metrics;
     private HexGraphic hexGraphic = new HexGraphic(getGraphicsContext2D());
-    private double[] cornersX = new double[6];
-    private double[] cornersY = new double[6];
 
     private int offsetLimit;
     private int axialSize;
-    private int[][] pieces;
+    private HexTile[][] hexTiles;
 
     public HexBoard(int size) {
         this.size = size;
@@ -38,7 +36,19 @@ public class HexBoard extends Canvas {
         // The board is defined in the array [q,r] where the cells at index (q+r < offsetLimit) are unused
         offsetLimit = size-1;
         axialSize = size*2-1;
-        pieces = new int[axialSize][axialSize];
+        hexTiles = new HexTile[axialSize][axialSize];
+
+        // Initialize board pieces
+        for (int q=0; q<axialSize; q++) {
+            for (int r = 0; r < axialSize; r++) {
+                if (q+r >= offsetLimit && q+r <= (axialSize-1)*2-offsetLimit) {
+                    hexTiles[q][r] = new HexTile(q, r);
+                } else {
+                    // The tile at this index is unused
+                    hexTiles[q][r] = null;
+                }
+            }
+        }
 
         setOnMouseClicked(this::handleMouseClick);
     }
@@ -68,37 +78,30 @@ public class HexBoard extends Canvas {
     }
 
     private void handleMouseClick(MouseEvent event) {
-        System.out.println("\nMouseclick:");
-        System.out.println(event.getX());
-        System.out.println(event.getY());
-        double[] hex = metrics.pixel_to_hex(event.getX(), event.getY());
-        System.out.println(hex[0]);
-        System.out.println(hex[1]);
-
-        if (pieces[(int) Math.round(hex[0])][(int) Math.round(hex[1])] == 2) {
-            pieces[(int) Math.round(hex[0])][(int) Math.round(hex[1])] = 0;
-        } else {
-            pieces[(int) Math.round(hex[0])][(int) Math.round(hex[1])] = 2;
+        // Check clicked tile
+        for (int q=0; q<axialSize; q++) {
+            for (int r = 0; r < axialSize; r++) {
+                if (hexTiles[q][r] != null && metrics.isBoundingHex(hexTiles[q][r].getCornersX(), hexTiles[q][r].getCornersY(), (int) event.getX(), (int) event.getY())) {
+                    System.out.println("q: " + q);
+                    System.out.println("r: " + r);
+                    if (hexTiles[q][r].getValue() == 2) {
+                        hexTiles[q][r].setValue(0);
+                    } else {
+                        hexTiles[q][r].setValue(2);
+                    }
+                    repaint();
+                    r = axialSize; q = axialSize;
+                }
+            }
         }
-
-        repaint();
-
-//        for (int i = 0; i < hexCorners.size(); i++) {
-//            if (metrics.isBoundingHex(hexCorners.get(i))) {
-//                System.out.println(hexCorners.get(i).get(2)[0]);
-//                System.out.println(hexCorners.get(i).get(2)[1]);
-//            }
-//        }
     }
 
-    private ArrayList<ArrayList<double[]>> hexCorners;
     public void repaint() {
-        getGraphicsContext2D().clearRect(0,0,10000,10000);
-        hexCorners = new ArrayList<>();
+        getGraphicsContext2D().clearRect(0,0,this.getWidth(),this.getHeight());
         for (int q=0; q<axialSize; q++) {
             for (int r=0; r<axialSize; r++) {
                 // Check hexagon boundaries
-                if (q+r >= offsetLimit && q+r <= (axialSize-1)*2-offsetLimit) {
+                if (hexTiles[q][r] != null) {
                     repaintCell(q, r);
                 }
             }
@@ -106,11 +109,13 @@ public class HexBoard extends Canvas {
     }
     private void repaintCell(int q, int r) {
         if (hexCellHandler != null) {
-            hexCellHandler.refresh(q, r, pieces, hexGraphic);
+            hexCellHandler.refresh(q, r, hexTiles, hexGraphic);
         }
-        ArrayList<double[]> corners = metrics.computeCorners(q, r, cornersX, cornersY);
+        ArrayList<double[]> corners = metrics.computeCorners(q, r);
         hexGraphic.draw(corners.get(0), corners.get(1));
-        corners.add(new double[]{q, r});
-        hexCorners.add(corners);
+//        double[] cornersX_copy = new double[6];
+//        System.arraycopy(corners.get(0), 0, new int[6], 0, 6)
+        hexTiles[q][r].setCornersX(corners.get(0));
+        hexTiles[q][r].setCornersY(corners.get(1));
     }
 }

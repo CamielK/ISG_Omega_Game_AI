@@ -10,8 +10,8 @@ public class HexCellHandler {
     private Color p4_color = Color.rgb(0, 142, 219);
     private Color empty_color = Color.rgb(118, 254, 118);
 
-    public void refresh(int q, int r, int[][] pieces, HexGraphic hg) {
-        switch (pieces[q][r]) {
+    public void refresh(int q, int r, HexTile[][] pieces, HexGraphic hg) {
+        switch (pieces[q][r].getValue()) {
             case 0:
                 hg.fill = empty_color;
                 break;
