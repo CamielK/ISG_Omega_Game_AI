@@ -9,8 +9,9 @@
     <stylesheets><URL value="@../css/styles.css" /></stylesheets>
 
     <left>
-        <VBox fx:id="sideBarContainer" prefHeight="200.0" prefWidth="200.0" minWidth="200" maxWidth="300" styleClass="sidebar-container" BorderPane.alignment="CENTER" alignment="TOP_CENTER">
-            <JFXButton styleClass="btn-reset" onAction="#ResetGame">Reset game</JFXButton>
+        <VBox fx:id="sideBarContainer" prefHeight="200.0" prefWidth="200.0" minWidth="200" maxWidth="300"
+              styleClass="sidebar-container" BorderPane.alignment="CENTER" alignment="TOP_CENTER" spacing="20">
+            <JFXButton fx:id="btnResetGame" disable="true" styleClass="btn-reset" onAction="#ResetGame" alignment="BOTTOM_CENTER">Reset game</JFXButton>
         </VBox>
     </left>
 

@@ -82,8 +82,6 @@ public class HexBoard extends Canvas {
         for (int q=0; q<axialSize; q++) {
             for (int r = 0; r < axialSize; r++) {
                 if (hexTiles[q][r] != null && metrics.isBoundingHex(hexTiles[q][r].getCornersX(), hexTiles[q][r].getCornersY(), (int) event.getX(), (int) event.getY())) {
-                    System.out.println("q: " + q);
-                    System.out.println("r: " + r);
                     if (hexTiles[q][r].getValue() == 2) {
                         hexTiles[q][r].setValue(0);
                     } else {
@@ -113,8 +111,6 @@ public class HexBoard extends Canvas {
         }
         ArrayList<double[]> corners = metrics.computeCorners(q, r);
         hexGraphic.draw(corners.get(0), corners.get(1));
-//        double[] cornersX_copy = new double[6];
-//        System.arraycopy(corners.get(0), 0, new int[6], 0, 6)
         hexTiles[q][r].setCornersX(corners.get(0));
         hexTiles[q][r].setCornersY(corners.get(1));
     }

@@ -46,6 +46,7 @@ public class Controller implements Initializable {
     // inputs
     @FXML public JFXSlider sliderHexSize;
     @FXML public JFXButton btnStartGame;
+    @FXML public JFXButton btnResetGame;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -77,6 +78,7 @@ public class Controller implements Initializable {
         boardContainer.setVisible(true);
         boardContainer.setManaged(true);
         startContainer.setVisible(false);
+        btnResetGame.setDisable(false);
     }
 
     private void initPlayerSelection(int numPlayers) {
@@ -100,6 +102,7 @@ public class Controller implements Initializable {
         boardContainer.setVisible(false);
         boardContainer.setManaged(false);
         startContainer.setVisible(true);
+        btnResetGame.setDisable(true);
     }
     private void resetBoard(int size) {
         board = new HexBoard(size);

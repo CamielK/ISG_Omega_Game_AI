@@ -17,7 +17,7 @@
     -fx-padding: 0.7em 0.57em;
     -fx-font-size: 14px;
     -jfx-button-type: RAISED;
-    -fx-background-color: #76FE76;
+    -fx-background-color: #b63c32;
     -fx-pref-width: 160;
     -fx-text-fill: #141B20;
 }
@@ -27,6 +27,7 @@
 
 .sidebar-container {
     -fx-background-color: #1E262C;
+    -fx-padding: 20;
 }
 .content-container {
     -fx-background-color: #ECF0F1;
