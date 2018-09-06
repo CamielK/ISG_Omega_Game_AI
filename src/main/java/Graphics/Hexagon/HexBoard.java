@@ -58,22 +58,22 @@ public class HexBoard extends Canvas {
     public void setHexCellHandler(HexCellHandler handler) {hexCellHandler = handler;}
 
     /**
-     * Update board dimensions
+     * Update board dimensions to best fit the container
      */
     public void setDimensions(int d_width, int d_height) {
         // Check which dimension is the constraining factor
         double radius = (d_width * .6) / (size*2);
         double computed_height = (height*.75+.25) * (2*radius);
-        if (computed_height > d_height && d_height != 0) {
-            radius = (d_height / (height*.75+.25)) / 2;
+        if (computed_height > d_height-20 && d_height != 0) {
+            radius = ((d_height-20) / (height*.75+.25)) / 2;
             computed_height = (height*.75+.25) * (2*radius);
         }
 
         // Apply new radius
         this.radius = (int) radius;
         this.metrics = new HexMetrics(radius);
-        this.setWidth(metrics.width * width);
-        this.setHeight(computed_height);
+        this.setWidth(metrics.width * width + 10);
+        this.setHeight(computed_height + 10);
         repaint();
     }
 

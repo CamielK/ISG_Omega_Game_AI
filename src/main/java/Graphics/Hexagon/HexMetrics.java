@@ -62,7 +62,6 @@ public class HexMetrics {
             cornersY_i[y] = (int) cornersY[y];
         }
         Polygon poly = new Polygon(cornersX_i, cornersY_i, cornersX.length);
-        boolean contains = poly.contains(new Point(pointX, pointY));
-        return contains;
+        return poly.contains(new Point(pointX, pointY));
     }
 }
