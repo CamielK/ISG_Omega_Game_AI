@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import com.jfoenix.controls.JFXSlider?>
+<?import com.jfoenix.controls.JFXButton?>
+<BorderPane fx:id="root" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Graphics.Controller">
+    <stylesheets><URL value="@../css/styles.css" /></stylesheets>
+
+    <left>
+        <VBox fx:id="sideBarContainer" prefHeight="200.0" prefWidth="200.0" minWidth="200" maxWidth="300" styleClass="sidebar-container" BorderPane.alignment="CENTER" alignment="TOP_CENTER">
+            <JFXButton styleClass="btn-reset" onAction="#ResetGame">Reset game</JFXButton>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox fx:id="contentContainer" styleClass="content-container" BorderPane.alignment="CENTER" alignment="CENTER">
+            <VBox fx:id="startContainer" styleClass="start-container" alignment="CENTER">
+                <Label styleClass="start-header">Start a new game</Label>
+                <HBox fx:id="playerSelect" alignment="CENTER" spacing="20"/>
+                <HBox alignment="CENTER" styleClass="input-group">
+                    <Label>Board size:</Label>
+                    <JFXSlider fx:id="sliderHexSize" styleClass="start-input" min="3" max="10" value="5" maxWidth="300"/>
+                    <Label fx:id="labelHexSize">5</Label>
+                </HBox>
+                <JFXButton fx:id="btnStartGame" styleClass="btn-start" onAction="#StartGame">Start!</JFXButton>
+            </VBox>
+            <VBox fx:id="boardContainer" styleClass="board-container" visible="false" alignment="CENTER"/>
+        </VBox>
+    </center>
+</BorderPane>

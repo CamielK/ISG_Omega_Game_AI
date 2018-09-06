@@ -19,6 +19,7 @@ public class HexBoard extends Canvas {
     private int width;
     private int height;
     private int radius;
+    private int size;
     private HexMetrics metrics;
     private HexGraphic hexGraphic = new HexGraphic(getGraphicsContext2D());
     private double[] cornersX = new double[6];
@@ -28,15 +29,13 @@ public class HexBoard extends Canvas {
     private int axialSize;
     private int[][] pieces;
 
-    public HexBoard(int size, int radius) {
+    public HexBoard(int size) {
+        this.size = size;
         this.width = size*2-1;
         this.height = size*2-1;
-        this.radius = radius;
-        this.metrics = new HexMetrics((double) radius);
 
-        this.setWidth(metrics.width * width);
-        this.setHeight(((width * radius * 3) / 2) + (radius / 2));
-
+        // Initialize flat axial representation of game board
+        // The board is defined in the array [q,r] where the cells at index (q+r < offsetLimit) are unused
         offsetLimit = size-1;
         axialSize = size*2-1;
         pieces = new int[axialSize][axialSize];
@@ -47,6 +46,26 @@ public class HexBoard extends Canvas {
     private HexCellHandler hexCellHandler = null;
     public HexCellHandler getHexCellHandler() {return hexCellHandler;}
     public void setHexCellHandler(HexCellHandler handler) {hexCellHandler = handler;}
+
+    /**
+     * Update board dimensions
+     */
+    public void setDimensions(int d_width, int d_height) {
+        // Check which dimension is the constraining factor
+        double radius = (d_width * .6) / (size*2);
+        double computed_height = (height*.75+.25) * (2*radius);
+        if (computed_height > d_height && d_height != 0) {
+            radius = (d_height / (height*.75+.25)) / 2;
+            computed_height = (height*.75+.25) * (2*radius);
+        }
+
+        // Apply new radius
+        this.radius = (int) radius;
+        this.metrics = new HexMetrics(radius);
+        this.setWidth(metrics.width * width);
+        this.setHeight(computed_height);
+        repaint();
+    }
 
     private void handleMouseClick(MouseEvent event) {
         System.out.println("\nMouseclick:");
@@ -74,6 +93,7 @@ public class HexBoard extends Canvas {
 
     private ArrayList<ArrayList<double[]>> hexCorners;
     public void repaint() {
+        getGraphicsContext2D().clearRect(0,0,10000,10000);
         hexCorners = new ArrayList<>();
         for (int q=0; q<axialSize; q++) {
             for (int r=0; r<axialSize; r++) {

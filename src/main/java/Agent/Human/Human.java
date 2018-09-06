@@ -1,8 +1,8 @@
-package Agent.MinMaxBasic;
+package Agent.Human;
 
 import Agent.Agent;
 
-public class AgentMinMaxBasic implements Agent {
+public class Human implements Agent {
 
     public boolean GetMove() {
         return false;

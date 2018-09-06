@@ -27,14 +27,14 @@ public class HexMetrics {
      */
     private double x_correction = -1;
     public ArrayList<double[]> computeCorners(int q, int r, double[] cX, double[] cY) {
-        var mX = radius * (Math.sqrt(3) * q + Math.sqrt(3)/2 * r);
-        var mY = r * side;
+        double mX = radius * (Math.sqrt(3) * q + Math.sqrt(3)/2 * r);
+        double mY = r * side;
         if (x_correction == -1) x_correction = mX;
         for (int i=0; i<6; i++) {
             cX[i] = mX + cornersX[i] - x_correction;
             cY[i] = mY + cornersY[i];
         }
-        return new ArrayList<>(){{add(cX); add(cY);}};
+        return new ArrayList<double[]>(){{add(cX); add(cY);}};
     }
 
     /**
