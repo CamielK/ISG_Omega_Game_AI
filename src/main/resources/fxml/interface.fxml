@@ -5,21 +5,25 @@
 <?import javafx.scene.layout.*?>
 <?import com.jfoenix.controls.JFXSlider?>
 <?import com.jfoenix.controls.JFXButton?>
-<BorderPane fx:id="root" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Graphics.Controller">
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.shape.Polygon?>
+<BorderPane fx:id="root" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Graphics.Controller">
     <stylesheets><URL value="@../css/styles.css" /></stylesheets>
 
-    <left>
-        <VBox fx:id="sideBarContainer" prefHeight="200.0" prefWidth="200.0" minWidth="200" maxWidth="300"
-              styleClass="sidebar-container" BorderPane.alignment="CENTER" alignment="TOP_CENTER" spacing="20">
-            <JFXButton fx:id="btnResetGame" disable="true" styleClass="btn-reset" onAction="#ResetGame" alignment="BOTTOM_CENTER">Reset game</JFXButton>
-        </VBox>
-    </left>
+    <!--<left>-->
+        <!--<VBox fx:id="sideBarContainer" prefHeight="200.0" prefWidth="200.0" minWidth="200" maxWidth="200"-->
+              <!--styleClass="sidebar-container" BorderPane.alignment="CENTER" alignment="TOP_CENTER" spacing="20">-->
+            <!--<JFXButton fx:id="btnResetGame" disable="true" styleClass="btn-reset" onAction="#ResetGame" alignment="BOTTOM_CENTER">Reset game</JFXButton>-->
+        <!--</VBox>-->
+    <!--</left>-->
 
     <center>
         <VBox fx:id="contentContainer" styleClass="content-container" BorderPane.alignment="CENTER" alignment="CENTER">
-            <VBox fx:id="startContainer" styleClass="start-container" alignment="CENTER">
+            <VBox fx:id="startContainer" styleClass="start-container" alignment="CENTER" spacing="20">
                 <Label styleClass="start-header">Start a new game</Label>
-                <HBox fx:id="playerSelect" alignment="CENTER" spacing="20"/>
+                <Rectangle fx:id="startRect" width="150" height="3"/>
+                <Polygon fx:id="startPoly"/>
+                <HBox fx:id="playerSelect" styleClass="player-select-container" alignment="CENTER" spacing="20"/>
                 <HBox alignment="CENTER" styleClass="input-group">
                     <Label>Board size:</Label>
                     <JFXSlider fx:id="sliderHexSize" styleClass="start-input" min="3" max="10" value="5" maxWidth="300"/>
@@ -30,4 +34,20 @@
             <VBox fx:id="boardContainer" styleClass="board-container" visible="false" alignment="CENTER"/>
         </VBox>
     </center>
+
+    <right>
+        <BorderPane fx:id="playerContainer" visible="false" managed="false"
+                    prefHeight="260.0" prefWidth="260.0" minWidth="260" maxWidth="260"
+                    styleClass="player-container">
+            <top>
+                <VBox fx:id="playersBox" BorderPane.alignment="CENTER" alignment="TOP_CENTER" spacing="20">
+                </VBox>
+            </top>
+            <center>
+                <VBox BorderPane.alignment="CENTER" alignment="BOTTOM_CENTER" spacing="20">
+                    <JFXButton fx:id="btnResetGame" styleClass="btn-reset" onAction="#ResetGame" alignment="BOTTOM_CENTER">Reset game</JFXButton>
+                </VBox>
+            </center>
+        </BorderPane>
+    </right>
 </BorderPane>

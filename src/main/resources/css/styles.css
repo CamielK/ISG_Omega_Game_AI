@@ -1,9 +1,11 @@
 .start-header {
     -fx-font-size: 32px;
-    -fx-padding: 30px;
 }
 .start-input {
     -fx-padding: 20px;
+}
+.player-select-container {
+    -fx-padding: 200px 0px 0px 0px;
 }
 .btn-start {
     -fx-padding: 0.7em 0.57em;
@@ -17,9 +19,9 @@
     -fx-padding: 0.7em 0.57em;
     -fx-font-size: 14px;
     -jfx-button-type: RAISED;
-    -fx-background-color: #b63c32;
+    -fx-background-color: #1E262C;
     -fx-pref-width: 160;
-    -fx-text-fill: #141B20;
+    -fx-text-fill: WHITE;
 }
 .input-group {
     -fx-padding: 30px;
@@ -27,6 +29,12 @@
 
 .sidebar-container {
     -fx-background-color: #1E262C;
+    -fx-padding: 20;
+}
+.player-container {
+    -fx-background-color: #e4e8e9;
+    -fx-border-color: #c4c8c9;
+    -fx-border-width: 0 0 0 1;
     -fx-padding: 20;
 }
 .content-container {
@@ -43,6 +51,10 @@
 }
 .menu .label {
     -fx-text-fill: WHITE;
+}
+
+.player-label {
+    -fx-font-size: 22px;
 }
 
 /*DECORATOR*/

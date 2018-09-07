@@ -2,6 +2,7 @@ package Graphics.Hexagon;
 
 
 import java.awt.*;
+import java.awt.Polygon;
 import java.util.ArrayList;
 
 public class HexMetrics {
@@ -61,7 +62,7 @@ public class HexMetrics {
         for (int y = 0; y < cornersY.length; y++) {
             cornersY_i[y] = (int) cornersY[y];
         }
-        Polygon poly = new Polygon(cornersX_i, cornersY_i, cornersX.length);
+        Polygon poly = new java.awt.Polygon(cornersX_i, cornersY_i, cornersX.length);
         return poly.contains(new Point(pointX, pointY));
     }
 }

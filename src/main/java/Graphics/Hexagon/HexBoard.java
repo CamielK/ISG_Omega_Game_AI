@@ -1,18 +1,11 @@
 package Graphics.Hexagon;
 
-import javafx.event.Event;
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.shape.Circle;
-
-import java.beans.EventHandler;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * Inspired by: https://gist.github.com/Akjir/5721503
+ * Inspired by: https://gist.github.com/Akjir/5721503, https://www.redblobgames.com/grids/hexagons/
  */
 public class HexBoard extends Canvas {
 
@@ -53,9 +46,9 @@ public class HexBoard extends Canvas {
         setOnMouseClicked(this::handleMouseClick);
     }
 
-    private HexCellHandler hexCellHandler = null;
-    public HexCellHandler getHexCellHandler() {return hexCellHandler;}
-    public void setHexCellHandler(HexCellHandler handler) {hexCellHandler = handler;}
+    private Polygon hexCellHandler = null;
+    public Polygon getHexCellHandler() {return hexCellHandler;}
+    public void setHexCellHandler(Polygon handler) {hexCellHandler = handler;}
 
     /**
      * Update board dimensions to best fit the container
