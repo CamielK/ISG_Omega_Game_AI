@@ -110,6 +110,18 @@ public class HexBoard extends Canvas {
         }
     }
 
+    public int numEmptySpaces() {
+        int empty = 0;
+        for (int q=0; q<axialSize; q++) {
+            for (int r = 0; r < axialSize; r++) {
+                if (hexTiles[q][r] != null && hexTiles[q][r].getColor() == Color.EMPTY) {
+                    empty++;
+                }
+            }
+        }
+        return empty;
+    }
+
     public void undoMoves(int numMoves) {
         for (int i = moveHistory.size()-1; i >= moveHistory.size()-numMoves; i--) {
             moveHistory.get(i).setColor(Color.EMPTY);

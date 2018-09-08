@@ -6,11 +6,11 @@ import Enum.Color;
 import Graphics.Hexagon.HexBoard;
 import Library.Config;
 import Library.Player;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXSlider;
+import com.jfoenix.controls.*;
 import javafx.animation.ScaleTransition;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Orientation;
@@ -20,6 +20,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.net.URL;
@@ -163,6 +164,29 @@ public class Controller implements Initializable {
                 currentTurnPlayerId = 0;
             }
             reloadScoreboard();
+        }
+
+        // Check game termination
+        if (players[currentTurnPlayerId].getColor() == Color.WHITE && board.numEmptySpaces() < Math.pow(NUM_PLAYERS, NUM_PLAYERS)) {
+            showEndGameDialog();
+        }
+    }
+
+    private void showEndGameDialog() {
+        Player winner = null;
+        for (Player player : players) {
+            if (winner == null || player.getScore() > winner.getScore()) {
+                winner = player;
+            }
+        }
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Do you want to start a new game?", ButtonType.YES, ButtonType.NO);
+        alert.setTitle("Game finished");
+        alert.setHeaderText("Game has ended. Player " + winner.getNumber() + " was victorious!");
+        alert.showAndWait();
+        if (alert.getResult() == ButtonType.YES) {
+            ResetGame(null);
+        } else {
+            Platform.exit();
         }
     }
 
