@@ -7,12 +7,15 @@ import Graphics.Hexagon.HexBoard;
 import Library.Config;
 import Library.Player;
 import com.jfoenix.controls.*;
+import de.jensd.fx.fontawesome.AwesomeDude;
+import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -61,6 +64,8 @@ public class Controller implements Initializable {
     @FXML public JFXSlider sliderHexSize;
     @FXML public JFXButton btnStartGame;
     @FXML public JFXButton btnResetGame;
+    private JFXButton btnUndo;
+    private JFXButton btnEnd;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -83,6 +88,9 @@ public class Controller implements Initializable {
         st.setCycleCount(Integer.MAX_VALUE);
         st.setAutoReverse(true);
         st.play();
+
+        AwesomeDude.setIcon(btnResetGame, AwesomeIcon.UNDO, "24px", ContentDisplay.LEFT);
+//        AwesomeDude.setIcon(btnStartGame, AwesomeIcon.HAND_ALT_RIGHT, "28px", ContentDisplay.RIGHT);
     }
     private void updateBoardDimensions() {
         if (board != null) {
@@ -129,10 +137,16 @@ public class Controller implements Initializable {
                 tilesContainer.getChildren().addAll(new Label("Tiles left in this turn: " + currentTurnTilesLeft), tilesCollection);
 
                 // End turn button
-                JFXButton btnUndo = new JFXButton("Undo turn");
-                btnUndo.getStyleClass().add("btn-reset");
+                btnUndo = new JFXButton("Undo turn");
+                btnUndo.getStyleClass().add("btn-info");
                 btnUndo.setOnAction(event -> undoTurn());
-                JFXButton btnEnd = new JFXButton("End turn");
+                btnUndo.setDisable(true);
+                AwesomeDude.setIcon(btnUndo, AwesomeIcon.UNDO, "24px");
+                if (currentTurnTilesLeft < NUM_PLAYERS) btnUndo.setDisable(false);
+                btnEnd = new JFXButton("End turn");
+                btnEnd.setDisable(true);
+                AwesomeDude.setIcon(btnEnd, AwesomeIcon.ARROW_CIRCLE_RIGHT, "24px");
+                if (currentTurnTilesLeft == 0) btnEnd.setDisable(false);
                 btnEnd.getStyleClass().add("btn-error");
                 btnEnd.setOnAction(event -> endTurn());
 

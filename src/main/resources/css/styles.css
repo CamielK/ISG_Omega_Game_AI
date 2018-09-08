@@ -9,13 +9,21 @@
 }
 .btn-start {
     -fx-padding: 0.7em 0.57em;
-    -fx-font-size: 14px;
+    -fx-font-size: 18px;
     -jfx-button-type: RAISED;
     -fx-background-color: #141B20;
     -fx-pref-width: 200;
     -fx-text-fill: WHITE;
 }
 .btn-reset {
+    -fx-padding: 0.7em 0.57em;
+    -fx-font-size: 14px;
+    -jfx-button-type: RAISED;
+    -fx-background-color: #1E262C;
+    -fx-pref-width: 220;
+    -fx-text-fill: WHITE;
+}
+.btn-info {
     -fx-padding: 0.7em 0.57em;
     -fx-font-size: 14px;
     -jfx-button-type: RAISED;
@@ -75,4 +83,21 @@
 .jfx-decorator .resize-border {
     -fx-border-color: -fx-decorator-color;
     -fx-border-width: 0 3 3 3;
+}
+
+/*AWESOME*/
+.root{
+    -icons-color: rgb(223, 223, 217);
+}
+.awesome{
+    -fx-font-family: FontAwesome;
+    -fx-font-size: 16px;
+    /*-fx-effect: innershadow( three-pass-box , derive(-icons-color,-70%) , 0.1em, 0.0 , 0.07em, 0.07em );*/
+    -fx-text-fill: linear-gradient(to bottom, derive(-icons-color,20%) 10%, derive(-icons-color,-40%) 80%);
+}
+.awesome:hover{
+    -fx-effect: dropshadow( three-pass-box , derive(-icons-color,0%) , 0.01em, 0.0 , 0, 0);
+}
+.awesome:selected{
+    -fx-effect: dropshadow( three-pass-box , derive(-icons-color,0%) , 0.01em, 0.0 , 0, 0);
 }

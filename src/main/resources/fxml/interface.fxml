@@ -8,7 +8,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.shape.Polygon?>
 <?import com.jfoenix.controls.JFXToggleButton?>
-<BorderPane fx:id="root" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Graphics.Controller">
+<BorderPane fx:id="root" styleClass="root" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Graphics.Controller">
     <stylesheets><URL value="@../css/styles.css" /></stylesheets>
 
     <center>
@@ -41,7 +41,7 @@
                 </VBox>
             </top>
             <center>
-                <VBox BorderPane.alignment="CENTER" alignment="BOTTOM_CENTER" spacing="20">
+                <VBox BorderPane.alignment="CENTER" alignment="BOTTOM_LEFT">
                     <JFXToggleButton onAction="#ToggleGroup">Show group id</JFXToggleButton>
                     <JFXToggleButton onAction="#ToggleAxes">Show axes</JFXToggleButton>
                     <JFXButton fx:id="btnResetGame" styleClass="btn-reset" onAction="#ResetGame">Reset game</JFXButton>
