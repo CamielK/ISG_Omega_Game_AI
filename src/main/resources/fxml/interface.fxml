@@ -7,6 +7,7 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.shape.Polygon?>
+<?import com.jfoenix.controls.JFXToggleButton?>
 <BorderPane fx:id="root" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Graphics.Controller">
     <stylesheets><URL value="@../css/styles.css" /></stylesheets>
 
@@ -31,7 +32,10 @@
                 </HBox>
                 <JFXButton fx:id="btnStartGame" styleClass="btn-start" onAction="#StartGame">Start!</JFXButton>
             </VBox>
-            <VBox fx:id="boardContainer" styleClass="board-container" visible="false" alignment="CENTER"/>
+            <VBox fx:id="boardContainer" styleClass="board-container" visible="false" alignment="CENTER">
+                <HBox fx:id="currentPlayerArea" alignment="CENTER" spacing="40" minHeight="90"/>
+                <HBox fx:id="boardArea" alignment="CENTER"/>
+            </VBox>
         </VBox>
     </center>
 
@@ -45,7 +49,9 @@
             </top>
             <center>
                 <VBox BorderPane.alignment="CENTER" alignment="BOTTOM_CENTER" spacing="20">
-                    <JFXButton fx:id="btnResetGame" styleClass="btn-reset" onAction="#ResetGame" alignment="BOTTOM_CENTER">Reset game</JFXButton>
+                    <JFXToggleButton onAction="#ToggleGroup">Show group id</JFXToggleButton>
+                    <JFXToggleButton onAction="#ToggleAxes">Show axes</JFXToggleButton>
+                    <JFXButton fx:id="btnResetGame" styleClass="btn-reset" onAction="#ResetGame">Reset game</JFXButton>
                 </VBox>
             </center>
         </BorderPane>

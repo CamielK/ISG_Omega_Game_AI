@@ -1,9 +1,7 @@
 package Graphics.Hexagon;
 
 import javafx.scene.canvas.Canvas;
-import javafx.scene.input.MouseEvent;
-
-import java.util.ArrayList;
+import Enum.Color;
 
 /**
  * Inspired by: https://gist.github.com/Akjir/5721503
@@ -14,7 +12,8 @@ public class HexTile extends Canvas {
     private int r;
     private double[] cornersX = new double[6];
     private double[] cornersY = new double[6];
-    private int value = 0;
+    private Color color = Color.EMPTY;
+    private int group = 0;
 
     public HexTile(int q, int r) {
         setQ(q);
@@ -53,11 +52,19 @@ public class HexTile extends Canvas {
         this.cornersY = cornersY;
     }
 
-    public int getValue() {
-        return value;
+    public Color getColor() {
+        return color;
     }
 
-    public void setValue(int value) {
-        this.value = value;
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public int getGroup() {
+        return group;
+    }
+
+    public void setGroup(int group) {
+        this.group = group;
     }
 }

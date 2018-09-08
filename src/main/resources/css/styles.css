@@ -23,6 +23,14 @@
     -fx-pref-width: 160;
     -fx-text-fill: WHITE;
 }
+.btn-error {
+    -fx-padding: 0.7em 0.57em;
+    -fx-font-size: 14px;
+    -jfx-button-type: RAISED;
+    -fx-background-color: #93342b;
+    -fx-pref-width: 160;
+    -fx-text-fill: WHITE;
+}
 .input-group {
     -fx-padding: 30px;
 }

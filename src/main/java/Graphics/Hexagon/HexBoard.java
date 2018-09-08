@@ -1,8 +1,14 @@
 package Graphics.Hexagon;
 
+import Graphics.Controller;
+import Library.Player;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import Enum.Color;
 
 /**
  * Inspired by: https://gist.github.com/Akjir/5721503, https://www.redblobgames.com/grids/hexagons/
@@ -19,8 +25,11 @@ public class HexBoard extends Canvas {
     private int offsetLimit;
     private int axialSize;
     private HexTile[][] hexTiles;
+    private Controller parent;
+    private ArrayList<HexTile> moveHistory = new ArrayList<>();
 
-    public HexBoard(int size) {
+    public HexBoard(int size, Controller parent) {
+        this.parent = parent;
         this.size = size;
         this.width = size*2-1;
         this.height = size*2-1;
@@ -70,21 +79,118 @@ public class HexBoard extends Canvas {
         repaint();
     }
 
-    private void handleMouseClick(MouseEvent event) {
-        // Check clicked tile
-        for (int q=0; q<axialSize; q++) {
-            for (int r = 0; r < axialSize; r++) {
-                if (hexTiles[q][r] != null && metrics.isBoundingHex(hexTiles[q][r].getCornersX(), hexTiles[q][r].getCornersY(), (int) event.getX(), (int) event.getY())) {
-                    if (hexTiles[q][r].getValue() == 2) {
-                        hexTiles[q][r].setValue(0);
-                    } else {
-                        hexTiles[q][r].setValue(2);
+    private void evaluatePlayerScores(Player[] players) {
+        for (Player player : players) {
+            Color color = player.getColor();
+
+            // compute score
+            Map<Integer, Integer> groupScores = new HashMap<>();
+            for (int q=0; q<axialSize; q++) {
+                for (int r = 0; r < axialSize; r++) {
+                    // Evaluate this tiles group
+                    HexTile tile = hexTiles[q][r];
+                    if (tile != null && tile.getColor() == player.getColor()) {
+                        if (groupScores.containsKey(tile.getGroup())) {
+                            groupScores.put(tile.getGroup(), (groupScores.get(tile.getGroup())+1));
+                        } else {
+                            groupScores.put(tile.getGroup(), 1);
+                        }
                     }
-                    repaint();
-                    r = axialSize; q = axialSize;
+                }
+            }
+            int score = 0;
+            for (Map.Entry<Integer, Integer> groupScore : groupScores.entrySet()) {
+                if (score == 0) {
+                    score = groupScore.getValue();
+                } else {
+                    score = score * groupScore.getValue();
+                }
+            }
+            player.setScore(score);
+        }
+    }
+
+    public void undoMoves(int numMoves) {
+        for (int i = moveHistory.size()-1; i >= moveHistory.size()-numMoves; i--) {
+            moveHistory.get(i).setColor(Color.EMPTY);
+            moveHistory.get(i).setGroup(0);
+        }
+        updateAll();
+    }
+
+    /**
+     * Find the tile that was clicked and handle its update if applicable
+     */
+    private int maxGroupId = 1;
+    private void handleMouseClick(MouseEvent event) {
+        if (parent.currentPlayerIsHuman()) {
+            for (int q=0; q<axialSize; q++) {
+                for (int r = 0; r < axialSize; r++) {
+                    if (hexTiles[q][r] != null && metrics.isBoundingHex(hexTiles[q][r].getCornersX(), hexTiles[q][r].getCornersY(), (int) event.getX(), (int) event.getY())) {
+                        Color placed = parent.placeTile();
+                        if (placed != null) {
+                            moveHistory.add(hexTiles[q][r]);
+                            hexTiles[q][r].setColor(placed);
+
+                            // Check neighbours for group scoring
+                            HexTile[] neighbours = new HexTile[]{
+                                    (q+1<axialSize          ? hexTiles[q+1][r]  : null),
+                                    (q-1>0                  ? hexTiles[q-1][r]  : null),
+                                    (q+1<axialSize && r-1>0 ? hexTiles[q+1][r-1]: null),
+                                    (r+1<axialSize && q-1>0 ? hexTiles[q-1][r+1]: null),
+                                    (r+1<axialSize          ? hexTiles[q][r+1]  : null),
+                                    (r-1>0                  ? hexTiles[q][r-1]  : null),
+                            };
+
+                            // Analyze neighbours
+                            int hasGroupingNeighbour = 0;
+                            for (HexTile tile : neighbours) {
+                                if (tile != null && tile.getColor() == placed) {
+
+                                    if (hasGroupingNeighbour > 0) {
+                                        // This tile joins 2 groups together > update that group
+                                        joinTileGroupsWithColor(placed, hasGroupingNeighbour, tile.getGroup());
+                                        break; // no need to compare any further
+                                    } else {
+                                        hexTiles[q][r].setGroup(tile.getGroup());
+                                        hasGroupingNeighbour = tile.getGroup();
+                                    }
+
+                                }
+                            }
+                            if (hasGroupingNeighbour == 0) {
+                                hexTiles[q][r].setGroup(maxGroupId);
+                                maxGroupId++;
+                            }
+
+                            updateAll();
+                            r = axialSize; q = axialSize;
+                        }
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Joins group2 into group1 of the same color
+     */
+    private void joinTileGroupsWithColor(Color color, int group1, int group2) {
+        for (int q=0; q<axialSize; q++) {
+            for (int r = 0; r < axialSize; r++) {
+                if (hexTiles[q][r] != null && hexTiles[q][r].getColor() == color) {
+                    if (hexTiles[q][r].getGroup() == group2) {
+                        hexTiles[q][r].setGroup(group1);
+                    }
+                }
+            }
+        }
+    }
+
+    private void updateAll() {
+        repaint();
+        evaluatePlayerScores(parent.getPlayers());
+        parent.reloadScoreboard();
     }
 
     public void repaint() {
@@ -102,9 +208,7 @@ public class HexBoard extends Canvas {
         if (hexCellHandler != null) {
             hexCellHandler.refresh(q, r, hexTiles, hexGraphic);
         }
-        ArrayList<double[]> corners = metrics.computeCorners(q, r);
-        hexGraphic.draw(corners.get(0), corners.get(1));
-        hexTiles[q][r].setCornersX(corners.get(0));
-        hexTiles[q][r].setCornersY(corners.get(1));
+        metrics.computeCorners(hexTiles[q][r]);
+        hexGraphic.draw(hexTiles[q][r]);
     }
 }

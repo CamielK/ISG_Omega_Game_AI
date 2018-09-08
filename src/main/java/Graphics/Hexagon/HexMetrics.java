@@ -28,17 +28,18 @@ public class HexMetrics {
      * Compute the corners of the hexagon at hex index [q,r]
      */
     private double x_correction = -1;
-    public ArrayList<double[]> computeCorners(int q, int r) {
+    public void computeCorners(HexTile tile) {
         double[] cX = new double[6];
         double[] cY = new double[6];
-        double mX = radius * (Math.sqrt(3) * q + Math.sqrt(3)/2 * r);
-        double mY = r * side;
+        double mX = radius * (Math.sqrt(3) * tile.getQ() + Math.sqrt(3)/2 * tile.getR());
+        double mY = tile.getR() * side;
         if (x_correction == -1) x_correction = mX;
         for (int i=0; i<6; i++) {
             cX[i] = mX + cornersX[i] - x_correction;
             cY[i] = mY + cornersY[i];
         }
-        return new ArrayList<double[]>(){{add(cX); add(cY);}};
+        tile.setCornersX(cX);
+        tile.setCornersY(cY);
     }
 
     /**

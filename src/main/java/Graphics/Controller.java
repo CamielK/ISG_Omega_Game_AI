@@ -1,8 +1,10 @@
 package Graphics;
 
 import Agent.Agent;
+import Agent.Human;
 import Enum.Color;
 import Graphics.Hexagon.HexBoard;
+import Library.Config;
 import Library.Player;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
@@ -14,9 +16,8 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.*;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
@@ -29,10 +30,14 @@ import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
 
+    private final int WIDTH_PLAYERS = 260;
+    private final int NUM_PLAYERS = 2;
+    private final Color[] colors = new Color[]{Color.WHITE, Color.BLACK, Color.RED, Color.BLUE};
+
     private Player[] players;
     private HexBoard board;
-
-    private final int WIDTH_PLAYERS = 260;
+    private int currentTurnPlayerId = 0;
+    private int currentTurnTilesLeft = NUM_PLAYERS;
 
     // containers
     @FXML public BorderPane root;
@@ -40,6 +45,8 @@ public class Controller implements Initializable {
     @FXML public BorderPane playerContainer;
     @FXML public VBox startContainer;
     @FXML public VBox boardContainer;
+    @FXML public HBox boardArea;
+    @FXML public HBox currentPlayerArea;
     @FXML public HBox playerSelect;
     @FXML public VBox playersBox;
 
@@ -60,7 +67,7 @@ public class Controller implements Initializable {
             int value = newValue.intValue();
             labelHexSize.setText(Integer.toString(value));
         });
-        initPlayerSelection(2);
+        initPlayerSelection(NUM_PLAYERS);
 
         // Add listener to window size
         root.widthProperty().addListener((obs, oldVal, newVal) -> updateBoardDimensions());
@@ -80,11 +87,11 @@ public class Controller implements Initializable {
         if (board != null) {
             double sidebarWidth = Math.max(WIDTH_PLAYERS, root.getWidth() * 0.25);
             playerContainer.setMinWidth(sidebarWidth);
-            board.setDimensions((int) (root.getWidth()-sidebarWidth), (int) root.getHeight());
+            board.setDimensions((int) (root.getWidth()-sidebarWidth), (int) (root.getHeight() - currentPlayerArea.getHeight()));
         }
     }
 
-    private void reloadScoreboard() {
+    public void reloadScoreboard() {
         playersBox.getChildren().clear();
         for (Player player : players) {
             HBox title = new HBox();
@@ -94,16 +101,71 @@ public class Controller implements Initializable {
             Polygon poly = Graphics.Hexagon.Polygon.getPolygon(player.getColor());
             Separator sep = new Separator(Orientation.VERTICAL);
             sep.setStyle("-fx-padding: 20");
+
+            // Indicate current player
+            if (currentTurnPlayerId == player.getId()) {
+                // animate player poly
+                ScaleTransition st = new ScaleTransition(Duration.millis(2000), poly);
+                st.setByX(.5f);
+                st.setByY(.5f);
+                st.setCycleCount(Integer.MAX_VALUE);
+                st.setAutoReverse(true);
+                st.play();
+
+                // draw current player info
+                Label labelCurrent = new Label("Current turn: Player " + player.getNumber());
+                labelCurrent.getStyleClass().add("player-label");
+
+                // Show tiles left in this turn
+                VBox tilesContainer = new VBox();
+                tilesContainer.setAlignment(Pos.CENTER_LEFT);
+                HBox tilesCollection = new HBox(20);
+                tilesCollection.setAlignment(Pos.CENTER);
+                for (int i=0; i < currentTurnTilesLeft; i++) {
+                    Polygon tile = Graphics.Hexagon.Polygon.getPolygon(colors[i], 1.3);
+                    tilesCollection.getChildren().add(tile);
+                }
+                tilesContainer.getChildren().addAll(new Label("Tiles left in this turn: " + currentTurnTilesLeft), tilesCollection);
+
+                // End turn button
+                JFXButton btnUndo = new JFXButton("Undo turn");
+                btnUndo.getStyleClass().add("btn-reset");
+                btnUndo.setOnAction(event -> undoTurn());
+                JFXButton btnEnd = new JFXButton("End turn");
+                btnEnd.getStyleClass().add("btn-error");
+                btnEnd.setOnAction(event -> endTurn());
+
+                currentPlayerArea.getChildren().clear();
+                currentPlayerArea.getChildren().addAll(labelCurrent, tilesContainer, btnUndo, btnEnd);
+            }
+
             title.getChildren().addAll(poly, sep, label);
             Label label3 = new Label("<" + player.getAgent().getClass().getName() + ">");
-            playersBox.getChildren().addAll(title, label3);
+            Label label4 = new Label("Score: " + player.getScore());
+            playersBox.getChildren().addAll(title, label3, label4);
             if (player.getId() < players.length-1) {
                 playersBox.getChildren().add(new Separator());
             }
         }
     }
 
-    private final Color[] colors = new Color[]{Color.WHITE, Color.BLACK, Color.RED, Color.BLUE};
+    private void undoTurn() {
+        int numUndo = NUM_PLAYERS-currentTurnTilesLeft;
+        currentTurnTilesLeft = NUM_PLAYERS;
+        board.undoMoves(numUndo);
+    }
+
+    private void endTurn() {
+        if (currentTurnTilesLeft == 0) {
+            currentTurnTilesLeft = NUM_PLAYERS;
+            currentTurnPlayerId++;
+            if (currentTurnPlayerId > NUM_PLAYERS-1) {
+                currentTurnPlayerId = 0;
+            }
+            reloadScoreboard();
+        }
+    }
+
     private void initPlayerSelection(int numPlayers) {
         playerSelect.getChildren().clear();
         players = new Player[numPlayers];
@@ -120,6 +182,11 @@ public class Controller implements Initializable {
             Player player = new Player(i);
             player.setColor((Color) used_colors_shuffled[i]);
             players[i] = player;
+
+            // White player starts the game!
+            if (used_colors_shuffled[i] == Color.WHITE) {
+                currentTurnPlayerId = i;
+            }
 
             // Player selection item
             VBox playerBox = new VBox();
@@ -148,6 +215,26 @@ public class Controller implements Initializable {
         reloadScoreboard();
     }
 
+    public Player[] getPlayers() {
+        return players;
+    }
+    public boolean currentPlayerIsHuman() {
+        return players[currentTurnPlayerId].getAgent() instanceof Human;
+    }
+
+    /**
+     * Places the current tile and returns its color value
+     */
+    public Color placeTile() {
+        if (currentTurnTilesLeft > 0) {
+            Color placed = colors[currentTurnTilesLeft-1];
+            currentTurnTilesLeft--;
+            return placed;
+        } else {
+            return null;
+        }
+    }
+
     private void SetPlayerContainerVisible(boolean visible) {
         playerContainer.setVisible(visible);
         playerContainer.setManaged(visible);
@@ -156,6 +243,15 @@ public class Controller implements Initializable {
     private void SetBoardContainerVisible(boolean visible) {
         boardContainer.setVisible(visible);
         boardContainer.setManaged(visible);
+    }
+
+    @FXML protected void ToggleGroup(ActionEvent event) {
+        Config.GFX_GROUP_ENABLED = !Config.GFX_GROUP_ENABLED;
+        board.repaint();
+    }
+    @FXML protected void ToggleAxes(ActionEvent event) {
+        Config.GFX_AXES_ENABLED = !Config.GFX_AXES_ENABLED;
+        board.repaint();
     }
 
     @FXML protected void StartGame(ActionEvent event) {
@@ -169,13 +265,15 @@ public class Controller implements Initializable {
         SetBoardContainerVisible(false);
         SetPlayerContainerVisible(false);
         startContainer.setVisible(true);
-        initPlayerSelection(2);
+        initPlayerSelection(NUM_PLAYERS);
     }
     private void resetBoard(int size) {
-        board = new HexBoard(size);
+        board = new HexBoard(size, this);
         board.setHexCellHandler(new Graphics.Hexagon.Polygon());
-        board.setDimensions((int) (root.getWidth()-Math.max(playerContainer.getWidth(), WIDTH_PLAYERS)), (int) root.getHeight());
-        boardContainer.getChildren().clear();
-        boardContainer.getChildren().add(board);
+        board.setDimensions(
+                (int) (root.getWidth()-Math.max(playerContainer.getWidth(), WIDTH_PLAYERS)),
+                (int) (currentPlayerArea.getHeight() > 0 ? root.getHeight() - currentPlayerArea.getHeight() : root.getHeight()));
+        boardArea.getChildren().clear();
+        boardArea.getChildren().add(board);
     }
 }
