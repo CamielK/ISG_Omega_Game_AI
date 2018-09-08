@@ -126,7 +126,9 @@ public class HexBoard extends Canvas {
         if (parent.currentPlayerIsHuman()) {
             for (int q=0; q<axialSize; q++) {
                 for (int r = 0; r < axialSize; r++) {
-                    if (hexTiles[q][r] != null && metrics.isBoundingHex(hexTiles[q][r].getCornersX(), hexTiles[q][r].getCornersY(), (int) event.getX(), (int) event.getY())) {
+                    if (hexTiles[q][r] != null
+                            && hexTiles[q][r].getColor() == Color.EMPTY
+                            && metrics.isBoundingHex(hexTiles[q][r].getCornersX(), hexTiles[q][r].getCornersY(), (int) event.getX(), (int) event.getY())) {
                         Color placed = parent.placeTile();
                         if (placed != null) {
                             moveHistory.add(hexTiles[q][r]);
@@ -134,12 +136,12 @@ public class HexBoard extends Canvas {
 
                             // Check neighbours for group scoring
                             HexTile[] neighbours = new HexTile[]{
-                                    (q+1<axialSize          ? hexTiles[q+1][r]  : null),
-                                    (q-1>0                  ? hexTiles[q-1][r]  : null),
-                                    (q+1<axialSize && r-1>0 ? hexTiles[q+1][r-1]: null),
-                                    (r+1<axialSize && q-1>0 ? hexTiles[q-1][r+1]: null),
-                                    (r+1<axialSize          ? hexTiles[q][r+1]  : null),
-                                    (r-1>0                  ? hexTiles[q][r-1]  : null),
+                                    (q+1<axialSize              ? hexTiles[q+1][r]  : null),
+                                    (q-1>=0                     ? hexTiles[q-1][r]  : null),
+                                    (q+1<axialSize && r-1>=0    ? hexTiles[q+1][r-1]: null),
+                                    (r+1<axialSize && q-1>=0    ? hexTiles[q-1][r+1]: null),
+                                    (r+1<axialSize              ? hexTiles[q][r+1]  : null),
+                                    (r-1>=0                     ? hexTiles[q][r-1]  : null),
                             };
 
                             // Analyze neighbours

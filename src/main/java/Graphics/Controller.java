@@ -189,7 +189,7 @@ public class Controller implements Initializable {
             }
 
             // Player selection item
-            VBox playerBox = new VBox();
+            VBox playerBox = new VBox(30);
             playerBox.setAlignment(Pos.CENTER);
 
             // Draw player selection
@@ -208,8 +208,9 @@ public class Controller implements Initializable {
                     e.printStackTrace();
                 }
             });
+            Polygon poly = Graphics.Hexagon.Polygon.getPolygon(player.getColor(), 1.5);
 
-            playerBox.getChildren().addAll(label, jfxCombo);
+            playerBox.getChildren().addAll(label, jfxCombo, poly);
             playerSelect.getChildren().add(playerBox);
         }
         reloadScoreboard();
@@ -265,6 +266,7 @@ public class Controller implements Initializable {
         SetBoardContainerVisible(false);
         SetPlayerContainerVisible(false);
         startContainer.setVisible(true);
+        currentTurnTilesLeft = NUM_PLAYERS;
         initPlayerSelection(NUM_PLAYERS);
     }
     private void resetBoard(int size) {

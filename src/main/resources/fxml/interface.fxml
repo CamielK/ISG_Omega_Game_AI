@@ -11,13 +11,6 @@
 <BorderPane fx:id="root" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Graphics.Controller">
     <stylesheets><URL value="@../css/styles.css" /></stylesheets>
 
-    <!--<left>-->
-        <!--<VBox fx:id="sideBarContainer" prefHeight="200.0" prefWidth="200.0" minWidth="200" maxWidth="200"-->
-              <!--styleClass="sidebar-container" BorderPane.alignment="CENTER" alignment="TOP_CENTER" spacing="20">-->
-            <!--<JFXButton fx:id="btnResetGame" disable="true" styleClass="btn-reset" onAction="#ResetGame" alignment="BOTTOM_CENTER">Reset game</JFXButton>-->
-        <!--</VBox>-->
-    <!--</left>-->
-
     <center>
         <VBox fx:id="contentContainer" styleClass="content-container" BorderPane.alignment="CENTER" alignment="CENTER">
             <VBox fx:id="startContainer" styleClass="start-container" alignment="CENTER" spacing="20">
@@ -33,8 +26,8 @@
                 <JFXButton fx:id="btnStartGame" styleClass="btn-start" onAction="#StartGame">Start!</JFXButton>
             </VBox>
             <VBox fx:id="boardContainer" styleClass="board-container" visible="false" alignment="CENTER">
-                <HBox fx:id="currentPlayerArea" alignment="CENTER" spacing="40" minHeight="90"/>
                 <HBox fx:id="boardArea" alignment="CENTER"/>
+                <HBox fx:id="currentPlayerArea" alignment="CENTER" spacing="40" minHeight="90"/>
             </VBox>
         </VBox>
     </center>
