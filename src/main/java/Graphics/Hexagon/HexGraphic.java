@@ -51,7 +51,14 @@ public class HexGraphic {
         if (tile.getColor() == Color.BLACK) {
             context.setFill(Polygon.WHITE);
         }
-        if (Config.GFX_GROUP_ENABLED) context.fillText(Integer.toString(tile.getGroup()), cX[5]+10, cY[5]+15);
-        if (Config.GFX_AXES_ENABLED) context.fillText(Integer.toString(tile.getQ()) + "," + Integer.toString(tile.getR()), cX[5]+10, cY[5]+30);
+        int yOffset = 0;
+        if (Config.GFX_GROUP_ENABLED) {
+            yOffset+=15;
+            context.fillText(Integer.toString(tile.getGroup()), cX[5]+10, cY[5]+yOffset);
+        }
+        if (Config.GFX_AXES_ENABLED) {
+            yOffset+=15;
+            context.fillText(Integer.toString(tile.getQ()) + "," + Integer.toString(tile.getR()), cX[5]+10, cY[5]+yOffset);
+        }
     }
 }
