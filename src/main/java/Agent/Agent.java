@@ -1,5 +1,11 @@
 package Agent;
 
+import Enum.Color;
+import Graphics.Hexagon.HexBoard;
+
 public interface Agent {
-    public int[][] GetMove();
+    /**
+     * Method places the tilesToPlace on the board specific to its class implementation
+     */
+    public void GetMove(HexBoard board, Color[] tilesToPlace);
 }

@@ -1,10 +1,11 @@
 package Agent;
 
 import Agent.Agent;
+import Enum.Color;
+import Graphics.Hexagon.HexBoard;
 
 public class Human implements Agent {
 
-    public int[][] GetMove() {
-        return null;
+    public void GetMove(HexBoard board, Color[] tilesToPlace) {
     }
 }

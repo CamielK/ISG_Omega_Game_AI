@@ -3,6 +3,7 @@ package Library;
 import Agent.Agent;
 import Agent.Human;
 import Enum.Color;
+import Graphics.Hexagon.HexBoard;
 
 public class Player {
 
@@ -11,14 +12,6 @@ public class Player {
     private Agent agent = new Human();
     private int score = 0;
     private Color color;
-
-    public int[][] getAgentMove() {
-        if (agent instanceof Human) {
-            return null;
-        } else {
-            return agent.GetMove();
-        }
-    }
 
     public Player(int id) {
         this.id = id;

@@ -5,6 +5,7 @@ import Library.Player;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -214,7 +215,7 @@ public class HexBoard extends Canvas {
         }
     }
 
-    private void updateAll() {
+    public void updateAll() {
         evaluatePlayerScores(parent.getPlayers());
         parent.reloadScoreboard();
         repaint();
@@ -239,19 +240,23 @@ public class HexBoard extends Canvas {
         hexGraphic.draw(hexTiles[q][r]);
     }
 
+    public HexTile[][] getGameState() {
+        return hexTiles;
+    }
     /**
      * Returns a deep copy of the supplied game state
      */
-    private HexTile[][] GetGameStateDeepCopy(HexTile[][] state) {
+    public HexTile[][] getGameStateDeepCopy() {
         HexTile[][] copy = new HexTile[axialSize][axialSize];
         for (int q=0; q<axialSize; q++) {
             for (int r=0; r<axialSize; r++) {
-                if (state[q][r] != null) {
+                HexTile tile = hexTiles[q][r];
+                if (tile != null) {
                     HexTile copy_tile = new HexTile(q, r);
-                    copy_tile.setGroup(state[q][r].getGroup());
-                    copy_tile.setColor(state[q][r].getColor());
-                    copy_tile.setCornersX(state[q][r].getCornersX());
-                    copy_tile.setCornersY(state[q][r].getCornersY());
+                    copy_tile.setGroup(tile.getGroup());
+                    copy_tile.setColor(tile.getColor());
+                    copy_tile.setCornersX(Arrays.copyOf(tile.getCornersX(), tile.getCornersX().length));
+                    copy_tile.setCornersY(Arrays.copyOf(tile.getCornersY(), tile.getCornersY().length));
                     copy[q][r] = copy_tile;
                 }
             }

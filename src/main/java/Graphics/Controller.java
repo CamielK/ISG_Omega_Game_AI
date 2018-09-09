@@ -141,11 +141,11 @@ public class Controller implements Initializable {
                 btnUndo.getStyleClass().add("btn-info");
                 btnUndo.setOnAction(event -> undoTurn());
                 btnUndo.setDisable(true);
-                AwesomeDude.setIcon(btnUndo, AwesomeIcon.UNDO, "24px");
+                AwesomeDude.setIcon(btnUndo, AwesomeIcon.CHEVRON_CIRCLE_LEFT, "24px");
                 if (currentTurnTilesLeft < NUM_PLAYERS) btnUndo.setDisable(false);
                 btnEnd = new JFXButton("End turn");
                 btnEnd.setDisable(true);
-                AwesomeDude.setIcon(btnEnd, AwesomeIcon.ARROW_CIRCLE_RIGHT, "24px");
+                AwesomeDude.setIcon(btnEnd, AwesomeIcon.CHEVRON_CIRCLE_RIGHT, "24px");
                 if (currentTurnTilesLeft == 0) btnEnd.setDisable(false);
                 btnEnd.getStyleClass().add("btn-error");
                 btnEnd.setOnAction(event -> endTurn());
@@ -161,6 +161,18 @@ public class Controller implements Initializable {
             if (player.getId() < players.length-1) {
                 playersBox.getChildren().add(new Separator());
             }
+        }
+    }
+
+    private void handleTurn() {
+        Player currentPlayer = players[currentTurnPlayerId];
+        if (!(currentPlayer.getAgent() instanceof Human)) {
+            currentPlayer.getAgent().GetMove(board, Arrays.copyOfRange(colors, 0, NUM_PLAYERS));
+            currentTurnTilesLeft = 0;
+            board.updateAll();
+            endTurn();
+        } else {
+            // Human turns are not handled > wait for user interaction instead
         }
     }
 
@@ -183,6 +195,8 @@ public class Controller implements Initializable {
         // Check game termination
         if (players[currentTurnPlayerId].getColor() == Color.WHITE && board.numEmptySpaces() < Math.pow(NUM_PLAYERS, NUM_PLAYERS)) {
             showEndGameDialog();
+        } else {
+            handleTurn();
         }
     }
 
@@ -236,6 +250,7 @@ public class Controller implements Initializable {
             JFXComboBox<Label> jfxCombo = new JFXComboBox<Label>();
             jfxCombo.getItems().add(new Label("Human"));
             jfxCombo.getItems().add(new Label("MinMaxBasic"));
+            jfxCombo.getItems().add(new Label("Random"));
             jfxCombo.setPromptText("Human");
             jfxCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
                 try {
@@ -298,6 +313,7 @@ public class Controller implements Initializable {
         startContainer.setVisible(false);
         SetBoardContainerVisible(true);
         SetPlayerContainerVisible(true);
+        handleTurn();
     }
 
     @FXML protected void ResetGame(ActionEvent event) {
