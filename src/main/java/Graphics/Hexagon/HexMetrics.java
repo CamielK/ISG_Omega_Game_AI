@@ -28,15 +28,15 @@ public class HexMetrics {
      * Compute the corners of the hexagon at hex index [q,r]
      */
     private double x_correction = -1;
-    public void computeCorners(HexTile tile) {
+    public void computeCorners(HexTile tile, double canvasHeightOffset) {
         double[] cX = new double[6];
         double[] cY = new double[6];
         double mX = radius * (Math.sqrt(3) * tile.getQ() + Math.sqrt(3)/2 * tile.getR());
         double mY = tile.getR() * side;
         if (x_correction == -1) x_correction = mX;
         for (int i=0; i<6; i++) {
-            cX[i] = mX + cornersX[i] - x_correction;
-            cY[i] = mY + cornersY[i];
+            cX[i] = mX + cornersX[i] - x_correction ;
+            cY[i] = mY + cornersY[i] + canvasHeightOffset;
         }
         tile.setCornersX(cX);
         tile.setCornersY(cY);

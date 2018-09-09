@@ -3,12 +3,16 @@ package Graphics;
 import Agent.Agent;
 import Agent.Human;
 import Enum.Color;
+import Graphics.Component.Scoreboard;
+import Graphics.Component.TurnInformation;
 import Graphics.Hexagon.HexBoard;
 import Library.Config;
 import Library.Player;
 import com.jfoenix.controls.*;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
+import javafx.animation.Interpolator;
+import javafx.animation.PathTransition;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -19,10 +23,13 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Arc;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
@@ -35,13 +42,13 @@ import java.util.ResourceBundle;
 public class Controller implements Initializable {
 
     private final int WIDTH_PLAYERS = 260;
-    private final int NUM_PLAYERS = 2;
-    private final Color[] colors = new Color[]{Color.WHITE, Color.BLACK, Color.RED, Color.BLUE};
+    public final int NUM_PLAYERS = 2;
+    public final Color[] colors = new Color[]{Color.WHITE, Color.BLACK, Color.RED, Color.BLUE};
 
-    private Player[] players;
     private HexBoard board;
-    private int currentTurnPlayerId = 0;
-    private int currentTurnTilesLeft = NUM_PLAYERS;
+    public Player[] players;
+    public int currentTurnPlayerId = 0;
+    public int currentTurnTilesLeft = NUM_PLAYERS;
 
     // containers
     @FXML public BorderPane root;
@@ -53,6 +60,7 @@ public class Controller implements Initializable {
     @FXML public HBox currentPlayerArea;
     @FXML public HBox playerSelect;
     @FXML public VBox playersBox;
+    @FXML public VBox settingsContainer;
 
     @FXML public Rectangle startRect;
     @FXML public Polygon startPoly;
@@ -64,8 +72,9 @@ public class Controller implements Initializable {
     @FXML public JFXSlider sliderHexSize;
     @FXML public JFXButton btnStartGame;
     @FXML public JFXButton btnResetGame;
-    private JFXButton btnUndo;
-    private JFXButton btnEnd;
+    @FXML private JFXButton btnSettings;
+    @FXML private JFXButton btnUndo;
+    @FXML private JFXButton btnEnd;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -90,6 +99,7 @@ public class Controller implements Initializable {
         st.play();
 
         AwesomeDude.setIcon(btnResetGame, AwesomeIcon.UNDO, "24px", ContentDisplay.LEFT);
+        AwesomeDude.setIcon(btnSettings, AwesomeIcon.COGS, "32px", ContentDisplay.LEFT);
 //        AwesomeDude.setIcon(btnStartGame, AwesomeIcon.HAND_ALT_RIGHT, "28px", ContentDisplay.RIGHT);
     }
     private void updateBoardDimensions() {
@@ -101,67 +111,8 @@ public class Controller implements Initializable {
     }
 
     public void reloadScoreboard() {
-        playersBox.getChildren().clear();
-        for (Player player : players) {
-            HBox title = new HBox();
-            title.setAlignment(Pos.CENTER);
-            Label label = new Label("Player " + Integer.toString(player.getNumber()));
-            label.getStyleClass().add("player-label");
-            Polygon poly = Graphics.Hexagon.Polygon.getPolygon(player.getColor());
-            Separator sep = new Separator(Orientation.VERTICAL);
-            sep.setStyle("-fx-padding: 20");
-
-            // Indicate current player
-            if (currentTurnPlayerId == player.getId()) {
-                // animate player poly
-                ScaleTransition st = new ScaleTransition(Duration.millis(2000), poly);
-                st.setByX(.5f);
-                st.setByY(.5f);
-                st.setCycleCount(Integer.MAX_VALUE);
-                st.setAutoReverse(true);
-                st.play();
-
-                // draw current player info
-                Label labelCurrent = new Label("Current turn: Player " + player.getNumber());
-                labelCurrent.getStyleClass().add("player-label");
-
-                // Show tiles left in this turn
-                VBox tilesContainer = new VBox();
-                tilesContainer.setAlignment(Pos.CENTER_LEFT);
-                HBox tilesCollection = new HBox(20);
-                tilesCollection.setAlignment(Pos.CENTER);
-                for (int i=0; i < currentTurnTilesLeft; i++) {
-                    Polygon tile = Graphics.Hexagon.Polygon.getPolygon(colors[i], 1.3);
-                    tilesCollection.getChildren().add(tile);
-                }
-                tilesContainer.getChildren().addAll(new Label("Tiles left in this turn: " + currentTurnTilesLeft), tilesCollection);
-
-                // End turn button
-                btnUndo = new JFXButton("Undo turn");
-                btnUndo.getStyleClass().add("btn-info");
-                btnUndo.setOnAction(event -> undoTurn());
-                btnUndo.setDisable(true);
-                AwesomeDude.setIcon(btnUndo, AwesomeIcon.CHEVRON_CIRCLE_LEFT, "24px");
-                if (currentTurnTilesLeft < NUM_PLAYERS) btnUndo.setDisable(false);
-                btnEnd = new JFXButton("End turn");
-                btnEnd.setDisable(true);
-                AwesomeDude.setIcon(btnEnd, AwesomeIcon.CHEVRON_CIRCLE_RIGHT, "24px");
-                if (currentTurnTilesLeft == 0) btnEnd.setDisable(false);
-                btnEnd.getStyleClass().add("btn-error");
-                btnEnd.setOnAction(event -> endTurn());
-
-                currentPlayerArea.getChildren().clear();
-                currentPlayerArea.getChildren().addAll(labelCurrent, tilesContainer, btnUndo, btnEnd);
-            }
-
-            title.getChildren().addAll(poly, sep, label);
-            Label label3 = new Label("<" + player.getAgent().getClass().getName() + ">");
-            Label label4 = new Label("Score: " + player.getScore());
-            playersBox.getChildren().addAll(title, label3, label4);
-            if (player.getId() < players.length-1) {
-                playersBox.getChildren().add(new Separator());
-            }
-        }
+        Scoreboard.getScoreboard(this);
+        TurnInformation.getTurnInformation(this);
     }
 
     private void handleTurn() {
@@ -176,13 +127,13 @@ public class Controller implements Initializable {
         }
     }
 
-    private void undoTurn() {
+    public void undoTurn() {
         int numUndo = NUM_PLAYERS-currentTurnTilesLeft;
         currentTurnTilesLeft = NUM_PLAYERS;
         board.undoMoves(numUndo);
     }
 
-    private void endTurn() {
+    public void endTurn() {
         if (currentTurnTilesLeft == 0) {
             currentTurnTilesLeft = NUM_PLAYERS;
             currentTurnPlayerId++;
@@ -299,6 +250,16 @@ public class Controller implements Initializable {
         boardContainer.setManaged(visible);
     }
 
+    private void SetSettingsContainerVisible(boolean visible) {
+        settingsContainer.setVisible(visible);
+        settingsContainer.setManaged(visible);
+    }
+
+    private boolean showSettings = false;
+    @FXML protected void ToggleSettings(ActionEvent event) {
+        showSettings = !showSettings;
+        SetSettingsContainerVisible(showSettings);
+    }
     @FXML protected void ToggleGroup(ActionEvent event) {
         Config.GFX_GROUP_ENABLED = !Config.GFX_GROUP_ENABLED;
         board.repaint();

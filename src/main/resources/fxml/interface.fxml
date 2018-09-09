@@ -8,11 +8,12 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.shape.Polygon?>
 <?import com.jfoenix.controls.JFXToggleButton?>
+<?import com.jfoenix.controls.JFXDrawer?>
 <BorderPane fx:id="root" styleClass="root" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Graphics.Controller">
     <stylesheets><URL value="@../css/styles.css" /></stylesheets>
 
     <center>
-        <VBox fx:id="contentContainer" styleClass="content-container" BorderPane.alignment="CENTER" alignment="CENTER">
+        <VBox fx:id="contentContainer" styleClass="content-container" BorderPane.alignment="CENTER" alignment="BOTTOM_CENTER">
             <VBox fx:id="startContainer" styleClass="start-container" alignment="CENTER" spacing="20">
                 <Label styleClass="start-header">Start a new game</Label>
                 <Rectangle fx:id="startRect" width="150" height="3"/>
@@ -25,9 +26,9 @@
                 </HBox>
                 <JFXButton fx:id="btnStartGame" styleClass="btn-start" onAction="#StartGame">Start!</JFXButton>
             </VBox>
-            <VBox fx:id="boardContainer" styleClass="board-container" visible="false" alignment="CENTER">
-                <HBox fx:id="boardArea" alignment="CENTER"/>
-                <HBox fx:id="currentPlayerArea" alignment="CENTER" spacing="40" minHeight="90"/>
+            <VBox fx:id="boardContainer" visible="false" alignment="CENTER">
+                <HBox fx:id="boardArea" styleClass="board-container" alignment="CENTER"/>
+                <HBox fx:id="currentPlayerArea" styleClass="turn-container" alignment="CENTER" spacing="40" minHeight="110"/>
             </VBox>
         </VBox>
     </center>
@@ -41,10 +42,15 @@
                 </VBox>
             </top>
             <center>
-                <VBox BorderPane.alignment="CENTER" alignment="BOTTOM_LEFT">
-                    <JFXToggleButton onAction="#ToggleGroup">Show group id</JFXToggleButton>
-                    <JFXToggleButton onAction="#ToggleAxes">Show axes</JFXToggleButton>
-                    <JFXButton fx:id="btnResetGame" styleClass="btn-reset" onAction="#ResetGame">Reset game</JFXButton>
+                <VBox BorderPane.alignment="CENTER" alignment="BOTTOM_RIGHT">
+                    <VBox fx:id="settingsContainer" visible="false" managed="false" alignment="BOTTOM_RIGHT">
+
+                        <HBox alignment="CENTER_RIGHT"><Label>Show group id</Label><JFXToggleButton onAction="#ToggleGroup"/></HBox>
+                        <HBox alignment="CENTER_RIGHT"><Label>Show axes</Label><JFXToggleButton onAction="#ToggleAxes"/></HBox>
+                        <JFXButton fx:id="btnResetGame" styleClass="btn-reset" onAction="#ResetGame">Reset game</JFXButton>
+                        <Label/>
+                    </VBox>
+                    <JFXButton fx:id="btnSettings" styleClass="btn-settings" onAction="#ToggleSettings" focusTraversable="false"/>
                 </VBox>
             </center>
         </BorderPane>

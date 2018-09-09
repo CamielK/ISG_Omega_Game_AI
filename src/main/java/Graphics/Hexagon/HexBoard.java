@@ -20,10 +20,10 @@ public class HexBoard extends Canvas {
     private int height;
     private int radius;
     private int size;
+    private double canvasHeightOffset;
     private HexMetrics metrics;
     private HexGraphic hexGraphic = new HexGraphic(getGraphicsContext2D());
 
-    private int offsetLimit;
     private int axialSize;
     private HexTile[][] hexTiles;
     private Controller parent;
@@ -37,11 +37,11 @@ public class HexBoard extends Canvas {
 
         // Initialize flat axial representation of game board
         // The board is defined in the array [q,r] where the cells at index (q+r < offsetLimit) are unused
-        offsetLimit = size-1;
         axialSize = size*2-1;
         hexTiles = new HexTile[axialSize][axialSize];
 
         // Initialize board pieces
+        int offsetLimit = size - 1;
         for (int q=0; q<axialSize; q++) {
             for (int r = 0; r < axialSize; r++) {
                 if (q+r >= offsetLimit && q+r <= (axialSize-1)*2-offsetLimit) {
@@ -68,7 +68,7 @@ public class HexBoard extends Canvas {
         double radius = (d_width * .6) / (size*2);
         double computed_height = (height*.75+.25) * (2*radius);
         if (computed_height > d_height-20 && d_height != 0) {
-            radius = ((d_height-20) / (height*.75+.25)) / 2;
+            radius = ((d_height-40) / (height*.75+.25)) / 2;
             computed_height = (height*.75+.25) * (2*radius);
         }
 
@@ -76,7 +76,8 @@ public class HexBoard extends Canvas {
         this.radius = (int) radius;
         this.metrics = new HexMetrics(radius);
         this.setWidth(metrics.width * width + 10);
-        this.setHeight(computed_height + 10);
+        canvasHeightOffset = (d_height - computed_height) / 2;
+        this.setHeight(d_height);
         repaint();
     }
 
@@ -236,7 +237,7 @@ public class HexBoard extends Canvas {
         if (hexCellHandler != null) {
             hexCellHandler.refresh(q, r, hexTiles, hexGraphic);
         }
-        metrics.computeCorners(hexTiles[q][r]);
+        metrics.computeCorners(hexTiles[q][r], canvasHeightOffset);
         hexGraphic.draw(hexTiles[q][r]);
     }
 

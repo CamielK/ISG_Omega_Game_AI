@@ -9,7 +9,7 @@
 }
 .btn-start {
     -fx-padding: 0.7em 0.57em;
-    -fx-font-size: 18px;
+    -fx-font-size: 20px;
     -jfx-button-type: RAISED;
     -fx-background-color: #141B20;
     -fx-pref-width: 200;
@@ -17,7 +17,7 @@
 }
 .btn-reset {
     -fx-padding: 0.7em 0.57em;
-    -fx-font-size: 14px;
+    -fx-font-size: 18px;
     -jfx-button-type: RAISED;
     -fx-background-color: #1E262C;
     -fx-pref-width: 220;
@@ -25,7 +25,7 @@
 }
 .btn-info {
     -fx-padding: 0.7em 0.57em;
-    -fx-font-size: 14px;
+    -fx-font-size: 18px;
     -jfx-button-type: RAISED;
     -fx-background-color: #1E262C;
     -fx-pref-width: 160;
@@ -33,11 +33,36 @@
 }
 .btn-error {
     -fx-padding: 0.7em 0.57em;
-    -fx-font-size: 14px;
+    -fx-font-size: 18px;
     -jfx-button-type: RAISED;
     -fx-background-color: #93342b;
     -fx-pref-width: 160;
     -fx-text-fill: WHITE;
+}
+.btn-settings {
+    /*-fx-padding: 20 0 0 0;*/
+    /*-fx-background-color: #e4e8e9;*/
+    -jfx-button-type: FLAT;
+}
+.btn-settings:pressed {
+    -fx-background-color: NONE;
+}
+.btn-error:hover{
+    -fx-background-color: #b74138;
+    -fx-cursor: HAND;
+}
+.btn-info:hover{
+    -fx-background-color: #2e4250;
+    -fx-cursor: HAND;
+    /*-fx-background-color: #009688;*/
+}
+.btn-reset:hover{
+    -fx-background-color: #2e4250;
+    -fx-cursor: HAND;
+}
+.btn-start:hover{
+    -fx-background-color: #2e4250;
+    -fx-cursor: HAND;
 }
 .input-group {
     -fx-padding: 30px;
@@ -49,8 +74,6 @@
 }
 .player-container {
     -fx-background-color: #e4e8e9;
-    -fx-border-color: #c4c8c9;
-    -fx-border-width: 0 0 0 1;
     -fx-padding: 20;
 }
 .content-container {
@@ -61,6 +84,13 @@
 }
 .board-container {
     /*-fx-background-color: RED;*/
+    -fx-border-color: #c4c8c9;
+    -fx-border-width: 0 1 1 0;
+}
+.turn-container {
+    /*-fx-border-color: #5f6263;*/
+    -fx-background-color: #e4e8e9;
+    /*-fx-border-width: 1 0 0 0;*/
 }
 .title {
     -fx-background-color: #141B20;
@@ -70,7 +100,7 @@
 }
 
 .player-label {
-    -fx-font-size: 22px;
+    -fx-font-size: 21px;
 }
 
 /*DECORATOR*/
@@ -93,7 +123,9 @@
     -fx-font-family: FontAwesome;
     -fx-font-size: 16px;
     /*-fx-effect: innershadow( three-pass-box , derive(-icons-color,-70%) , 0.1em, 0.0 , 0.07em, 0.07em );*/
-    -fx-text-fill: linear-gradient(to bottom, derive(-icons-color,20%) 10%, derive(-icons-color,-40%) 80%);
+    /*-fx-text-fill: linear-gradient(to bottom, derive(-icons-color,20%) 10%, derive(-icons-color,-40%) 80%);*/
+    -fx-text-fill: #c8c8c8;
+    -fx-padding: 0 6;
 }
 .awesome:hover{
     -fx-effect: dropshadow( three-pass-box , derive(-icons-color,0%) , 0.01em, 0.0 , 0, 0);

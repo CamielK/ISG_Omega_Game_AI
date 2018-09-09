@@ -1,6 +1,7 @@
 package Graphics.Hexagon;
 
 import Enum.Color;
+import javafx.scene.effect.DropShadow;
 
 public class Polygon {
 
@@ -13,6 +14,7 @@ public class Polygon {
     public static javafx.scene.shape.Polygon getPolygon(Color color) { return getPolygon(color, 1); }
     public static javafx.scene.shape.Polygon getPolygon(Color color, double scale) {
         javafx.scene.shape.Polygon poly = new javafx.scene.shape.Polygon();
+        int shadowRadius = 14;
         poly.getPoints().addAll(
                 20.*scale,  0.,
                 40.*scale,          (.25*50)*scale,
@@ -23,8 +25,9 @@ public class Polygon {
         switch (color){
             case WHITE:
                 poly.setFill(WHITE);
-                poly.setStroke(javafx.scene.paint.Color.BLACK);
-                poly.setStrokeWidth(1);
+//                poly.setStroke(javafx.scene.paint.Color.BLACK);
+//                poly.setStrokeWidth(1);
+                shadowRadius=6;
                 break;
             case BLACK:
                 poly.setFill(BLACK);
@@ -38,6 +41,7 @@ public class Polygon {
             default:
                 poly.setFill(EMPTY);
         }
+        poly.setEffect(new DropShadow(shadowRadius, javafx.scene.paint.Color.GREY));
         return poly;
     }
 
