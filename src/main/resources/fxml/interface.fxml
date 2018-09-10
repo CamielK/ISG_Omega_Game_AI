@@ -13,15 +13,15 @@
     <stylesheets><URL value="@../css/styles.css" /></stylesheets>
 
     <center>
-        <VBox fx:id="contentContainer" styleClass="content-container" BorderPane.alignment="CENTER" alignment="BOTTOM_CENTER">
+        <VBox fx:id="contentContainer" styleClass="content-container" BorderPane.alignment="CENTER" alignment="CENTER">
             <VBox fx:id="startContainer" styleClass="start-container" alignment="CENTER" spacing="20">
                 <Label styleClass="start-header">Start a new game</Label>
                 <Rectangle fx:id="startRect" width="150" height="3"/>
                 <Polygon fx:id="startPoly"/>
-                <HBox fx:id="playerSelect" styleClass="player-select-container" alignment="CENTER" spacing="20"/>
+                <HBox fx:id="playerSelect" styleClass="player-select-container" alignment="BOTTOM_CENTER" spacing="20"/>
                 <HBox alignment="CENTER" styleClass="input-group">
-                    <Label>Board size:</Label>
-                    <JFXSlider fx:id="sliderHexSize" styleClass="start-input" min="3" max="10" value="5" maxWidth="300"/>
+                    <Label styleClass="player-label">Board size:</Label>
+                    <JFXSlider fx:id="sliderHexSize" styleClass="start-input" min="3" max="10" value="5" minWidth="200" maxWidth="500"/>
                     <Label fx:id="labelHexSize">5</Label>
                 </HBox>
                 <JFXButton fx:id="btnStartGame" styleClass="btn-start" onAction="#StartGame">Start!</JFXButton>

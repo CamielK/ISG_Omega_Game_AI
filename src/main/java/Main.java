@@ -1,16 +1,10 @@
 import com.jfoenix.controls.JFXDecorator;
-import com.jfoenix.svg.SVGGlyph;
-import com.jfoenix.svg.SVGGlyphLoader;
-import de.jensd.fx.fontawesome.AwesomeStyle;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
-import java.io.IOException;
 import java.net.URL;
 
 public class Main extends Application {
@@ -19,10 +13,11 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         URL fxml_file = getClass().getClassLoader().getResource("fxml/interface.fxml");
         Parent root = FXMLLoader.load(fxml_file);
-        primaryStage.setTitle("Omega AI");
+        primaryStage.setTitle("Omega AI (Camiel Kerkhofs i6172266)");
 
         JFXDecorator decorator = new JFXDecorator(primaryStage, root);
         decorator.setCustomMaximize(true);
+        decorator.setMaximized(true);
 
         Scene scene = new Scene(decorator);
 

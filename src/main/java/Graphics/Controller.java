@@ -2,35 +2,34 @@ package Graphics;
 
 import Agent.Agent;
 import Agent.Human;
+import Agent.MinMaxBasic;
+import Agent.Random;
 import Enum.Color;
 import Graphics.Component.Scoreboard;
 import Graphics.Component.TurnInformation;
 import Graphics.Hexagon.HexBoard;
 import Library.Config;
 import Library.Player;
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXSlider;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
-import javafx.animation.Interpolator;
-import javafx.animation.PathTransition;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
-import javafx.scene.shape.Arc;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
-import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.net.URL;
@@ -170,8 +169,22 @@ public class Controller implements Initializable {
     }
 
     private void initPlayerSelection(int numPlayers) {
+        initPlayerSelection(numPlayers, null);
+    }
+    private void initPlayerSelection(int numPlayers, Color p1Color) {
         playerSelect.getChildren().clear();
-        players = new Player[numPlayers];
+        boolean updateColorOnly = false;
+        if (p1Color != null) {
+            updateColorOnly = true;
+            players[0].setColor(p1Color);
+            if (p1Color == Color.WHITE) {
+                players[1].setColor(Color.BLACK);
+            } else {
+                players[1].setColor(Color.WHITE);
+            }
+        } else {
+            players = new Player[numPlayers];
+        }
 
         // Shuffle color assignment
         Color[] used_colors = Arrays.copyOfRange(colors, 0, numPlayers);
@@ -182,9 +195,11 @@ public class Controller implements Initializable {
         // Init players
         for (int i = 0; i < numPlayers; i++) {
             // Player object
-            Player player = new Player(i);
-            player.setColor((Color) used_colors_shuffled[i]);
-            players[i] = player;
+            if (!updateColorOnly) {
+                Player player = new Player(i);
+                players[i] = player;
+                players[i].setColor((Color) used_colors_shuffled[i]);
+            }
 
             // White player starts the game!
             if (used_colors_shuffled[i] == Color.WHITE) {
@@ -196,26 +211,36 @@ public class Controller implements Initializable {
             playerBox.setAlignment(Pos.CENTER);
 
             // Draw player selection
-            Label label = new Label("Player " + Integer.toString(player.getNumber()));
+            Label label = new Label("Player " + Integer.toString(players[i].getNumber()));
             label.getStyleClass().add("player-label");
             JFXComboBox<Label> jfxCombo = new JFXComboBox<Label>();
-            jfxCombo.getItems().add(new Label("Human"));
-            jfxCombo.getItems().add(new Label("MinMaxBasic"));
-            jfxCombo.getItems().add(new Label("Random"));
-            jfxCombo.setPromptText("Human");
+            jfxCombo.getItems().add(new Label(Human.class.getName()));
+            jfxCombo.getItems().add(new Label(MinMaxBasic.class.getName()));
+            jfxCombo.getItems().add(new Label(Random.class.getName()));
+            jfxCombo.setPromptText(players[i].getAgent().getClass().getName());
+            int ic= i;
             jfxCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
                 try {
-                    Agent agent = (Agent) Class.forName("Agent." + newVal.getText()).newInstance();
-                    player.setAgent(agent);
+                    Agent agent = (Agent) Class.forName(newVal.getText()).newInstance();
+                    players[ic].setAgent(agent);
                     reloadScoreboard();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             });
-            Polygon poly = Graphics.Hexagon.Polygon.getPolygon(player.getColor(), 1.5);
+            Polygon poly = Graphics.Hexagon.Polygon.getPolygon(players[i].getColor(), 1.5);
 
             playerBox.getChildren().addAll(label, jfxCombo, poly);
             playerSelect.getChildren().add(playerBox);
+
+            if (numPlayers == 2 && i==0) {
+                System.out.println("swapping");
+                JFXButton swap = new JFXButton("Swap color");
+                swap.getStyleClass().add("btn-settings");
+                swap.setOnAction(event -> {initPlayerSelection(numPlayers, players[1].getColor());});
+                AwesomeDude.setIcon(swap, AwesomeIcon.EXCHANGE, "32px", ContentDisplay.TOP);
+                playerSelect.getChildren().add(swap);
+            }
         }
         reloadScoreboard();
     }
