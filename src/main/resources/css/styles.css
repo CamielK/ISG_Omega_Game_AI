@@ -10,16 +10,24 @@
 .btn-swap {
     -fx-font-size: 18px;
 }
-.btn-swap:hover {
+JFXButton {
+    -fx-border-radius: 40;
+    -fx-background-radius: 40;
+}
+JFXButton:hover {
     -fx-cursor: hand;
 }
 .btn-start {
     -fx-padding: 0.7em 0.57em;
     -fx-font-size: 20px;
     -jfx-button-type: RAISED;
-    -fx-background-color: #141B20;
+    -fx-background-color: #2e4250;
     -fx-pref-width: 200;
     -fx-text-fill: WHITE;
+}
+.btn-start:hover{
+    -fx-background-color: #009688;
+    -fx-cursor: HAND;
 }
 .btn-reset {
     -fx-padding: 0.7em 0.57em;
@@ -66,9 +74,8 @@
     -fx-background-color: #2e4250;
     -fx-cursor: HAND;
 }
-.btn-start:hover{
+.jfx-slider .thumb, .colored-track, .animated-thumb {
     -fx-background-color: #2e4250;
-    -fx-cursor: HAND;
 }
 .input-group {
     -fx-padding: 30px;

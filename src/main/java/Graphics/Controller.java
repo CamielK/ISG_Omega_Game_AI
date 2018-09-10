@@ -293,6 +293,7 @@ public class Controller implements Initializable {
         startContainer.setVisible(false);
         SetBoardContainerVisible(true);
         SetPlayerContainerVisible(true);
+        reloadScoreboard();
         handleTurn();
     }
 
