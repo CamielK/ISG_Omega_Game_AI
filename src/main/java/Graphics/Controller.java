@@ -17,6 +17,8 @@ import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -33,16 +35,14 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class Controller implements Initializable {
 
     private final int WIDTH_PLAYERS = 260;
     public final int NUM_PLAYERS = 2;
     public final Color[] colors = new Color[]{Color.WHITE, Color.BLACK, Color.RED, Color.BLUE};
+    private Map<Color, Integer> colorSelectMap = new HashMap<Color, Integer>();
 
     private HexBoard board;
     public Player[] players;
@@ -57,9 +57,15 @@ public class Controller implements Initializable {
     @FXML public VBox boardContainer;
     @FXML public HBox boardArea;
     @FXML public HBox currentPlayerArea;
-    @FXML public HBox playerSelect;
+    @FXML public VBox playerSelect;
     @FXML public VBox playersBox;
     @FXML public VBox settingsContainer;
+    @FXML public HBox playerSelectP1;
+    @FXML public HBox playerSelectP2;
+    @FXML public VBox polyP1;
+    @FXML public VBox polyP2;
+    @FXML public HBox selectAgentP1;
+    @FXML public HBox selectAgentP2;
 
     @FXML public Rectangle startRect;
     @FXML public Polygon startPoly;
@@ -68,20 +74,25 @@ public class Controller implements Initializable {
     @FXML public Label labelHexSize;
 
     // inputs
+    @FXML public JFXComboBox selectColorP1;
+    @FXML public JFXComboBox selectColorP2;
     @FXML public JFXSlider sliderHexSize;
     @FXML public JFXButton btnStartGame;
     @FXML public JFXButton btnResetGame;
     @FXML private JFXButton btnSettings;
     @FXML private JFXButton btnUndo;
     @FXML private JFXButton btnEnd;
+    @FXML public JFXButton btnSwap;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        colorSelectMap.put(Color.WHITE, 0);
+        colorSelectMap.put(Color.BLACK, 1);
+        initPlayerSelect(NUM_PLAYERS);
         sliderHexSize.valueProperty().addListener((observable, oldValue, newValue) -> {
             int value = newValue.intValue();
             labelHexSize.setText(Integer.toString(value));
         });
-        initPlayerSelection(NUM_PLAYERS);
 
         // Add listener to window size
         root.widthProperty().addListener((obs, oldVal, newVal) -> updateBoardDimensions());
@@ -99,8 +110,52 @@ public class Controller implements Initializable {
 
         AwesomeDude.setIcon(btnResetGame, AwesomeIcon.UNDO, "24px", ContentDisplay.LEFT);
         AwesomeDude.setIcon(btnSettings, AwesomeIcon.COGS, "32px", ContentDisplay.LEFT);
-//        AwesomeDude.setIcon(btnStartGame, AwesomeIcon.HAND_ALT_RIGHT, "28px", ContentDisplay.RIGHT);
+        AwesomeDude.setIcon(btnStartGame, AwesomeIcon.HAND_ALT_RIGHT, "28px", ContentDisplay.RIGHT);
+        AwesomeDude.setIcon(btnSwap, AwesomeIcon.EXCHANGE, "32px", ContentDisplay.RIGHT);
     }
+
+    private void initPlayerSelect(int numPlayers) {
+        // Shuffle color assignment
+        Color[] used_colors = Arrays.copyOfRange(colors, 0, numPlayers);
+        List<Color> list = Arrays.asList(used_colors);
+        Collections.shuffle(list);
+        Object[] used_colors_shuffled = list.toArray();
+
+        // Init players
+        players = new Player[numPlayers];
+        for (int i = 0; i < numPlayers; i++) {
+            Player player = new Player(i);
+            players[i] = player;
+            players[i].setColor((Color) used_colors_shuffled[i]);
+
+            // White player starts the game!
+            if (used_colors_shuffled[i] == Color.WHITE) {
+                currentTurnPlayerId = i;
+            }
+
+            JFXComboBox<Label> jfxCombo = new JFXComboBox<Label>();
+            jfxCombo.getItems().add(new Label(Human.class.getName()));
+            jfxCombo.getItems().add(new Label(MinMaxBasic.class.getName()));
+            jfxCombo.getItems().add(new Label(Random.class.getName()));
+            jfxCombo.setPromptText(players[i].getAgent().getClass().getName());
+            int ic= i;
+            jfxCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
+                try {
+                    Agent agent = (Agent) Class.forName(newVal.getText()).newInstance();
+                    players[ic].setAgent(agent);
+                    reloadScoreboard();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            if (i==0) selectAgentP1.getChildren().add(jfxCombo);
+            else selectAgentP2.getChildren().add(jfxCombo);
+        }
+
+        // GFX
+        updatePlayerSelectionGFX();
+    }
+
     private void updateBoardDimensions() {
         if (board != null) {
             double sidebarWidth = Math.max(WIDTH_PLAYERS, root.getWidth() * 0.25);
@@ -168,80 +223,11 @@ public class Controller implements Initializable {
         }
     }
 
-    private void initPlayerSelection(int numPlayers) {
-        initPlayerSelection(numPlayers, null);
-    }
-    private void initPlayerSelection(int numPlayers, Color p1Color) {
-        playerSelect.getChildren().clear();
-        boolean updateColorOnly = false;
-        if (p1Color != null) {
-            updateColorOnly = true;
-            players[0].setColor(p1Color);
-            if (p1Color == Color.WHITE) {
-                players[1].setColor(Color.BLACK);
-            } else {
-                players[1].setColor(Color.WHITE);
-            }
-        } else {
-            players = new Player[numPlayers];
-        }
-
-        // Shuffle color assignment
-        Color[] used_colors = Arrays.copyOfRange(colors, 0, numPlayers);
-        List<Color> list = Arrays.asList(used_colors);
-        Collections.shuffle(list);
-        Object[] used_colors_shuffled = list.toArray();
-
-        // Init players
-        for (int i = 0; i < numPlayers; i++) {
-            // Player object
-            if (!updateColorOnly) {
-                Player player = new Player(i);
-                players[i] = player;
-                players[i].setColor((Color) used_colors_shuffled[i]);
-            }
-
-            // White player starts the game!
-            if (used_colors_shuffled[i] == Color.WHITE) {
-                currentTurnPlayerId = i;
-            }
-
-            // Player selection item
-            VBox playerBox = new VBox(30);
-            playerBox.setAlignment(Pos.CENTER);
-
-            // Draw player selection
-            Label label = new Label("Player " + Integer.toString(players[i].getNumber()));
-            label.getStyleClass().add("player-label");
-            JFXComboBox<Label> jfxCombo = new JFXComboBox<Label>();
-            jfxCombo.getItems().add(new Label(Human.class.getName()));
-            jfxCombo.getItems().add(new Label(MinMaxBasic.class.getName()));
-            jfxCombo.getItems().add(new Label(Random.class.getName()));
-            jfxCombo.setPromptText(players[i].getAgent().getClass().getName());
-            int ic= i;
-            jfxCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
-                try {
-                    Agent agent = (Agent) Class.forName(newVal.getText()).newInstance();
-                    players[ic].setAgent(agent);
-                    reloadScoreboard();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-            Polygon poly = Graphics.Hexagon.Polygon.getPolygon(players[i].getColor(), 1.5);
-
-            playerBox.getChildren().addAll(label, jfxCombo, poly);
-            playerSelect.getChildren().add(playerBox);
-
-            if (numPlayers == 2 && i==0) {
-                System.out.println("swapping");
-                JFXButton swap = new JFXButton("Swap color");
-                swap.getStyleClass().add("btn-settings");
-                swap.setOnAction(event -> {initPlayerSelection(numPlayers, players[1].getColor());});
-                AwesomeDude.setIcon(swap, AwesomeIcon.EXCHANGE, "32px", ContentDisplay.TOP);
-                playerSelect.getChildren().add(swap);
-            }
-        }
+    private void updatePlayerSelectionGFX() {
+        polyP1.getChildren().clear();
+        polyP1.getChildren().add(Graphics.Hexagon.Polygon.getPolygon(players[0].getColor(), 1.5));
+        polyP2.getChildren().clear();
+        polyP2.getChildren().add(Graphics.Hexagon.Polygon.getPolygon(players[1].getColor(), 1.5));
         reloadScoreboard();
     }
 
@@ -293,6 +279,14 @@ public class Controller implements Initializable {
         Config.GFX_AXES_ENABLED = !Config.GFX_AXES_ENABLED;
         board.repaint();
     }
+    @FXML protected void SwapColors(ActionEvent event) {
+        Color c = players[0].getColor();
+        players[0].setColor(players[1].getColor());
+        players[1].setColor(c);
+        if (c == Color.WHITE) currentTurnPlayerId = 1;
+        else currentTurnPlayerId = 0;
+        updatePlayerSelectionGFX();
+    }
 
     @FXML protected void StartGame(ActionEvent event) {
         resetBoard((int) sliderHexSize.getValue());
@@ -307,7 +301,7 @@ public class Controller implements Initializable {
         SetPlayerContainerVisible(false);
         startContainer.setVisible(true);
         currentTurnTilesLeft = NUM_PLAYERS;
-        initPlayerSelection(NUM_PLAYERS);
+//        initPlayerSelection(NUM_PLAYERS);
     }
     private void resetBoard(int size) {
         board = new HexBoard(size, this);

@@ -8,7 +8,8 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.shape.Polygon?>
 <?import com.jfoenix.controls.JFXToggleButton?>
-<?import com.jfoenix.controls.JFXDrawer?>
+<?import com.jfoenix.controls.JFXComboBox?>
+<?import javafx.collections.FXCollections?>
 <BorderPane fx:id="root" styleClass="root" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Graphics.Controller">
     <stylesheets><URL value="@../css/styles.css" /></stylesheets>
 
@@ -18,7 +19,28 @@
                 <Label styleClass="start-header">Start a new game</Label>
                 <Rectangle fx:id="startRect" width="150" height="3"/>
                 <Polygon fx:id="startPoly"/>
-                <HBox fx:id="playerSelect" styleClass="player-select-container" alignment="BOTTOM_CENTER" spacing="20"/>
+                <VBox fx:id="playerSelect" styleClass="player-select-container" alignment="CENTER" spacing="40">
+                    <HBox fx:id="playerSelectP1" spacing="30" alignment="CENTER">
+                        <Label styleClass="player-label">Player 1</Label>
+                        <VBox alignment="CENTER_LEFT">
+                            <Label>Agent</Label>
+                            <HBox fx:id="selectAgentP1"/>
+                        </VBox>
+                        <VBox fx:id="polyP1"/>
+                    </HBox>
+                    <HBox styleClass="swap" alignment="CENTER_RIGHT" maxWidth="390">
+                        <JFXButton fx:id="btnSwap" styleClass="btn-swap" onAction="#SwapColors">Swap colors</JFXButton>
+                    </HBox>
+                    <HBox fx:id="playerSelectP2" spacing="30" alignment="CENTER">
+                        <Label styleClass="player-label">Player 2</Label>
+                        <VBox alignment="CENTER_LEFT">
+                            <Label>Agent</Label>
+                            <HBox fx:id="selectAgentP2"/>
+                        </VBox>
+                        <VBox fx:id="polyP2"/>
+                    </HBox>
+                    <Separator maxWidth="500"/>
+                </VBox>
                 <HBox alignment="CENTER" styleClass="input-group">
                     <Label styleClass="player-label">Board size:</Label>
                     <JFXSlider fx:id="sliderHexSize" styleClass="start-input" min="3" max="10" value="5" minWidth="200" maxWidth="500"/>
@@ -47,10 +69,11 @@
 
                         <HBox alignment="CENTER_RIGHT"><Label>Show group id</Label><JFXToggleButton onAction="#ToggleGroup"/></HBox>
                         <HBox alignment="CENTER_RIGHT"><Label>Show axes</Label><JFXToggleButton onAction="#ToggleAxes"/></HBox>
-                        <JFXButton fx:id="btnResetGame" styleClass="btn-reset" onAction="#ResetGame">Reset game</JFXButton>
                         <Label/>
                     </VBox>
                     <JFXButton fx:id="btnSettings" styleClass="btn-settings" onAction="#ToggleSettings" focusTraversable="false"/>
+                    <Label/>
+                    <JFXButton fx:id="btnResetGame" styleClass="btn-reset" onAction="#ResetGame" focusTraversable="false">Reset game</JFXButton>
                 </VBox>
             </center>
         </BorderPane>

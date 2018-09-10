@@ -5,7 +5,13 @@
     -fx-padding: 20px;
 }
 .player-select-container {
-    -fx-padding: 160px 0px 0px 0px;
+    -fx-padding: 30px 0px 0px 0px;
+}
+.btn-swap {
+    -fx-font-size: 18px;
+}
+.btn-swap:hover {
+    -fx-cursor: hand;
 }
 .btn-start {
     -fx-padding: 0.7em 0.57em;
@@ -77,13 +83,14 @@
     -fx-padding: 20;
 }
 .content-container {
-    -fx-background-color: #ECF0F1;
+    /*-fx-background-color: #ECF0F1;*/
+    -fx-background-image: url('../images/background.png');
 }
 .start-container {
     /*-fx-background-color: BLUE;*/
 }
 .board-container {
-    /*-fx-background-color: RED;*/
+    -fx-background-color: #ECF0F1;
     -fx-border-color: #c4c8c9;
     -fx-border-width: 0 1 1 0;
 }

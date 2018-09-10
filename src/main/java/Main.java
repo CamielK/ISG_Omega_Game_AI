@@ -17,7 +17,7 @@ public class Main extends Application {
 
         JFXDecorator decorator = new JFXDecorator(primaryStage, root);
         decorator.setCustomMaximize(true);
-        decorator.setMaximized(true);
+//        decorator.setMaximized(true);
 
         Scene scene = new Scene(decorator);
 
