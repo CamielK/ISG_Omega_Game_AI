@@ -43,7 +43,7 @@
                 </VBox>
                 <HBox alignment="CENTER" styleClass="input-group">
                     <Label styleClass="player-label">Board size:</Label>
-                    <JFXSlider fx:id="sliderHexSize" min="3" max="10" value="5" minWidth="200" maxWidth="500"/>
+                    <JFXSlider fx:id="sliderHexSize" min="2" max="10" value="5" minWidth="200" maxWidth="500"/>
                     <Label fx:id="labelHexSize">5</Label>
                 </HBox>
                 <JFXButton fx:id="btnStartGame" styleClass="btn-start" onAction="#StartGame">Start!</JFXButton>
@@ -60,7 +60,7 @@
                     prefHeight="260.0" prefWidth="260.0" minWidth="260" maxWidth="260"
                     styleClass="player-container">
             <top>
-                <VBox>
+                <VBox alignment="CENTER">
                     <JFXButton fx:id="btnResetGame" styleClass="btn-reset" onAction="#ResetGame" focusTraversable="false">Reset game</JFXButton>
                     <Label/><Label/><Label/>
                     <VBox fx:id="playersBox" BorderPane.alignment="CENTER" alignment="TOP_CENTER" spacing="20"/>

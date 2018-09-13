@@ -24,6 +24,7 @@ public class Main extends Application {
         String css_uri = getClass().getResource("css/styles.css").toExternalForm();
         scene.getStylesheets().add(css_uri);
         primaryStage.setScene(scene);
+        primaryStage.setMinWidth(1000);
 //        primaryStage.setResizable(false);
         primaryStage.show();
     }

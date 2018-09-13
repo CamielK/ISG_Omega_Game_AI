@@ -81,7 +81,15 @@ public class HexBoard extends Canvas {
         repaint();
     }
 
-    private void evaluatePlayerScores(Player[] players) {
+    /**
+     * Returns the game evaluation for the given board
+     * Scores are returned for each color
+     * @param hexTiles board representation
+     * @return Map
+     */
+    public Map<Color, Integer> evaluatePlayerScores(HexTile[][] hexTiles) {
+        int axialSize = hexTiles.length;
+
         // Reset groups
         for (int q=0; q<axialSize; q++) {
             for (int r = 0; r < axialSize; r++) {
@@ -91,9 +99,14 @@ public class HexBoard extends Canvas {
 
         // Update groups for all tiles
         int maxGroupId = 1;
+        ArrayList<Color> colors = new ArrayList<Color>();
         for (int q=0; q<axialSize; q++) {
             for (int r = 0; r < axialSize; r++) {
                 if (hexTiles[q][r] != null && hexTiles[q][r].getColor() != Color.EMPTY && hexTiles[q][r].getGroup() <= 0) {// Check neighbours for group scoring
+                    if (!colors.contains(hexTiles[q][r].getColor())) {
+                        colors.add(hexTiles[q][r].getColor());
+                    }
+
                     HexTile[] neighbours = new HexTile[]{
                             (q+1<axialSize              ? hexTiles[q+1][r]  : null),
                             (q-1>=0                     ? hexTiles[q-1][r]  : null),
@@ -128,16 +141,16 @@ public class HexBoard extends Canvas {
         }
 
         // Check player scores
-        for (Player player : players) {
-            Color color = player.getColor();
+        Map<Color, Integer> colorScores = new HashMap<Color, Integer>();
+        for (Color color : colors) {
 
             // compute score
             Map<Integer, Integer> groupScores = new HashMap<>();
-            for (int q=0; q<axialSize; q++) {
+            for (int q=0; q < axialSize; q++) {
                 for (int r = 0; r < axialSize; r++) {
                     // Evaluate this tiles group
                     HexTile tile = hexTiles[q][r];
-                    if (tile != null && tile.getColor() == player.getColor()) {
+                    if (tile != null && tile.getColor() == color) {
                         if (groupScores.containsKey(tile.getGroup())) {
                             groupScores.put(tile.getGroup(), (groupScores.get(tile.getGroup())+1));
                         } else {
@@ -154,8 +167,11 @@ public class HexBoard extends Canvas {
                     score = score * groupScore.getValue();
                 }
             }
-            player.setScore(score);
+
+            colorScores.put(color, score);
         }
+
+        return colorScores;
     }
 
     public int numEmptySpaces() {
@@ -217,7 +233,10 @@ public class HexBoard extends Canvas {
     }
 
     public void updateAll() {
-        evaluatePlayerScores(parent.getPlayers());
+        Map<Color, Integer> colorScores = evaluatePlayerScores(hexTiles);
+        for (Player player : parent.players) {
+            player.setScore(colorScores.getOrDefault(player.getColor(), 0));
+        }
         parent.reloadScoreboard();
         repaint();
     }
@@ -244,24 +263,5 @@ public class HexBoard extends Canvas {
     public HexTile[][] getGameState() {
         return hexTiles;
     }
-    /**
-     * Returns a deep copy of the supplied game state
-     */
-    public HexTile[][] getGameStateDeepCopy() {
-        HexTile[][] copy = new HexTile[axialSize][axialSize];
-        for (int q=0; q<axialSize; q++) {
-            for (int r=0; r<axialSize; r++) {
-                HexTile tile = hexTiles[q][r];
-                if (tile != null) {
-                    HexTile copy_tile = new HexTile(q, r);
-                    copy_tile.setGroup(tile.getGroup());
-                    copy_tile.setColor(tile.getColor());
-                    copy_tile.setCornersX(Arrays.copyOf(tile.getCornersX(), tile.getCornersX().length));
-                    copy_tile.setCornersY(Arrays.copyOf(tile.getCornersY(), tile.getCornersY().length));
-                    copy[q][r] = copy_tile;
-                }
-            }
-        }
-        return copy;
-    }
+
 }

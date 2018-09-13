@@ -172,7 +172,7 @@ public class Controller implements Initializable {
     private void handleTurn() {
         Player currentPlayer = players[currentTurnPlayerId];
         if (!(currentPlayer.getAgent() instanceof Human)) {
-            currentPlayer.getAgent().GetMove(board, Arrays.copyOfRange(colors, 0, NUM_PLAYERS));
+            currentPlayer.GetMove(board, Arrays.copyOfRange(colors, 0, NUM_PLAYERS));
             currentTurnTilesLeft = 0;
             board.updateAll();
             endTurn();

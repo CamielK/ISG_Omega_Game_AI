@@ -3,6 +3,7 @@ package Agent;
 import Enum.Color;
 import Graphics.Hexagon.HexBoard;
 import Graphics.Hexagon.HexTile;
+import Library.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,7 +11,7 @@ import java.util.List;
 
 public class Random implements Agent {
 
-    public void GetMove(HexBoard board, Color[] tilesToPlace) {
+    public void GetMove(Player parent, HexBoard board, Color[] tilesToPlace) {
 //        HexTile[][] state = board.getGameStateDeepCopy();
         HexTile[][] state = board.getGameState();
 
