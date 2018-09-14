@@ -26,32 +26,54 @@ public interface Agent {
         return colorScores.getOrDefault(parent.getColor(), 0);
     }
 
-    default List<HexTile[][]> GenerateChildren(HexTile[][] node, Color[] tilesToPlace) {
-        List<HexTile[][]> children = new ArrayList<>();
-
-        // Get all possible positions
+    /**
+     * Returns a list of free (empty) tiles based on the given board and increments their turn id
+     * @param board Board representation
+     * @return list of free tiles
+     */
+    default List<HexTile> GetPossibleMoves(HexTile[][] board) {
         List<HexTile> possibleMoves = new ArrayList<>();
-        for (int q = 0; q < node.length; q++) {
-            for (int r = 0; r < node.length; r++) {
-                HexTile tile = node[q][r];
-                if (tile != null && tile.getColor() == Color.EMPTY) {
-                    possibleMoves.add(tile);
+        for (int q = 0; q < board.length; q++) {
+            for (int r = 0; r < board.length; r++) {
+                HexTile tile = board[q][r];
+                if (tile != null) {
+                    if (tile.getColor() == Color.EMPTY) {
+                        possibleMoves.add(tile);
+                    }
                 }
             }
         }
+        return possibleMoves;
+    }
+
+    /**
+     * Generates a list of all legal children for the given game state
+     * @param node Board representation
+     * @param tilesToPlace List of colors to be placed
+     * @return list of all legal children (size = n*(n-1), where n is the number of empty tiles in the given node)
+     */
+    default List<HexTile[][]> GenerateChildren(HexTile[][] node, Color[] tilesToPlace, int depth) {
+        List<HexTile[][]> children = new ArrayList<>();
+
+        // Get all legal positions for this node
+        List<HexTile> possibleMoves = GetPossibleMoves(node);
 
         // Return each combination of possible positions
+        // A node will generate n*(n-1) children where n is the number of empty tiles in the node
         for (int x = 0; x < possibleMoves.size(); x++) {
-            for (int y = x; y < possibleMoves.size(); y++) {
+            for (int y = 0; y < possibleMoves.size(); y++) {
                 HexTile tile = possibleMoves.get(x);
                 HexTile tile2 = possibleMoves.get(y);
-                if (tile.getQ() != tile2.getQ() && tile.getR() != tile2.getR()) {
-                    for (int k = 0; k < tilesToPlace.length; k++) {
-                        HexTile[][] board = Helper.getGameStateDeepCopy(node);
-                        board[tile.getQ()][tile.getR()].setColor(tilesToPlace[0+k]);
-                        board[tile2.getQ()][tile2.getR()].setColor(tilesToPlace[(k==0?1:0)]);
-                        children.add(board);
-                    }
+                if (!(tile.getQ() == tile2.getQ() && tile.getR() == tile2.getR())) {
+                    HexTile[][] board = Helper.getGameStateDeepCopy(node);
+                    board[tile.getQ()][tile.getR()].setColor(tilesToPlace[0]);
+                    board[tile.getQ()][tile.getR()].setPlacedId(depth);
+                    board[tile2.getQ()][tile2.getR()].setColor(tilesToPlace[1]);
+                    board[tile2.getQ()][tile2.getR()].setPlacedId(depth);
+//                    if (tile.getPlacedId()==0 || tile2.getPlacedId()==0) {
+//                        int test =1;
+//                    }
+                    children.add(board);
                 }
             }
         }

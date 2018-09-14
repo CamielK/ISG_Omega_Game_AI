@@ -18,6 +18,7 @@ public class Helper {
                     HexTile copy_tile = new HexTile(q, r);
                     copy_tile.setGroup(tile.getGroup());
                     copy_tile.setColor(tile.getColor());
+                    copy_tile.setPlacedId(tile.getPlacedId());
                     copy_tile.setCornersX(Arrays.copyOf(tile.getCornersX(), tile.getCornersX().length));
                     copy_tile.setCornersY(Arrays.copyOf(tile.getCornersY(), tile.getCornersY().length));
                     copy[q][r] = copy_tile;

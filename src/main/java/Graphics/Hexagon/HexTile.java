@@ -6,7 +6,7 @@ import Enum.Color;
 /**
  * Inspired by: https://gist.github.com/Akjir/5721503
  */
-public class HexTile extends Canvas {
+public class HexTile {
 
     private int q;
     private int r;
@@ -14,6 +14,7 @@ public class HexTile extends Canvas {
     private double[] cornersY = new double[6];
     private Color color = Color.EMPTY;
     private int group = 0;
+    private int placedId = -1;
 
     public HexTile(int q, int r) {
         setQ(q);
@@ -66,5 +67,13 @@ public class HexTile extends Canvas {
 
     public void setGroup(int group) {
         this.group = group;
+    }
+
+    public int getPlacedId() {
+        return placedId;
+    }
+
+    public void setPlacedId(int placedId) {
+        this.placedId = placedId;
     }
 }
