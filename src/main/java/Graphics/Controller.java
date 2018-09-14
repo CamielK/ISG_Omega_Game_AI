@@ -3,6 +3,7 @@ package Graphics;
 import Agent.Agent;
 import Agent.Human;
 import Agent.MinMaxBasic;
+import Agent.AlphaBetaBasic;
 import Agent.Random;
 import Enum.Color;
 import Graphics.Component.Scoreboard;
@@ -17,8 +18,6 @@ import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -135,6 +134,7 @@ public class Controller implements Initializable {
 
             JFXComboBox<Label> jfxCombo = new JFXComboBox<Label>();
             jfxCombo.getItems().add(new Label(Human.class.getName()));
+            jfxCombo.getItems().add(new Label(AlphaBetaBasic.class.getName()));
             jfxCombo.getItems().add(new Label(MinMaxBasic.class.getName()));
             jfxCombo.getItems().add(new Label(Random.class.getName()));
             jfxCombo.setPromptText(players[i].getAgent().getClass().getName());

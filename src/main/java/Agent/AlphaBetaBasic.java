@@ -8,9 +8,9 @@ import Library.Player;
 
 import java.util.List;
 
-public class MinMaxBasic implements Agent {
+public class AlphaBetaBasic implements Agent {
 
-    private final int initialDepth = 2;
+    private final int initialDepth = 3;
 
     private HexBoard board;
     private Player parent;
@@ -21,8 +21,8 @@ public class MinMaxBasic implements Agent {
         this.parent = parent;
         this.tilesToPlace = tilesToPlace;
 
-        Move best = MinMax(board.getGameState(), initialDepth, true);
-        System.out.println("MinMaxBasic found score: " + best.score);
+        Move best = AlphaBeta(board.getGameState(), initialDepth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+        System.out.println("AlphaBetaBasic found score: " + best.score);
 
         // Get the first 2 tiles placed by the minmax algorithm
         for (int q = 0; q < best.board.length; q++) {
@@ -38,7 +38,7 @@ public class MinMaxBasic implements Agent {
     /**
      * Returns the best possible board configuration (according to minmax) defined as an array of HexTiles
      */
-    private Move MinMax(HexTile[][] node, int depth, boolean isMaximizingPlayer) {
+    private Move AlphaBeta(HexTile[][] node, int depth, double alpha, double beta, boolean isMaximizingPlayer) {
         // Check for leaf nodes
         boolean terminal = false;
         List<HexTile[][]> children = null;
@@ -54,18 +54,26 @@ public class MinMaxBasic implements Agent {
         if (isMaximizingPlayer) {
             Move value = new Move(Integer.MIN_VALUE, null);
             for (HexTile[][] child : children) {
-                Move value_child = MinMax(child, depth - 1, false);
+                Move value_child = AlphaBeta(child, depth - 1, alpha, beta, false);
                 if (value_child.score > value.score) {
                     value = value_child;
+                }
+                alpha = Math.max(alpha, value.score);
+                if (alpha >= beta) {
+                    break;
                 }
             }
             return value;
         } else {
             Move value = new Move(Integer.MAX_VALUE, null);
             for (HexTile[][] child : children) {
-                Move value_child = MinMax(child, depth - 1, true);
+                Move value_child = AlphaBeta(child, depth - 1, alpha, beta, true);
                 if (value_child.score < value.score) {
                     value = value_child;
+                }
+                beta = Math.min(beta, value.score);
+                if (alpha >= beta) {
+                    break;
                 }
             }
             return value;

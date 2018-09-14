@@ -21,9 +21,15 @@ public interface Agent {
         // Get game evaluation
         Map<Color, Integer> colorScores = board.evaluatePlayerScores(node);
 
-        // Return score of parent as eval result
         //TODO: add proper eval func
-        return colorScores.getOrDefault(parent.getColor(), 0);
+
+        // 1. Return score of parent as eval result
+//        return colorScores.getOrDefault(parent.getColor(), 0);
+
+        // 2. Return score difference in favor of parent
+        int p1Score = colorScores.getOrDefault(parent.getColor(), 0);
+        int p2Score = colorScores.getOrDefault((parent.getColor()==Color.WHITE?Color.BLACK:Color.WHITE), 0);
+        return p1Score-p2Score;
     }
 
     /**
