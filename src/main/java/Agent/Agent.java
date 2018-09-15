@@ -19,14 +19,21 @@ public interface Agent {
 
     default int EvaluateNode(HexTile[][] node, HexBoard board, Player parent) {
         // Get game evaluation
-        Map<Color, Integer> colorScores = board.evaluatePlayerScores(node);
+        Map<Color, Integer[]> colorScores = board.evaluatePlayerScores(node);
 
         // 1. Return score of parent as eval result
 //        return colorScores.getOrDefault(parent.getColor(), 0);
 
         // 2. Function of own score (higher is better) and opponent score (lower is better)
-        int ownScore = colorScores.getOrDefault(parent.getColor(), 0);
-        int oppScore = colorScores.getOrDefault((parent.getColor()==Color.WHITE?Color.BLACK:Color.WHITE), 0);
+//        int ownScore = colorScores.getOrDefault(parent.getColor(), 0);
+//        int oppScore = colorScores.getOrDefault((parent.getColor()==Color.WHITE?Color.BLACK:Color.WHITE), 0);
+//        return ownScore+(ownScore-oppScore);
+
+        // 3. Num disjoint groups
+        Integer[] player1Scores = colorScores.getOrDefault(parent.getColor(), new Integer[]{0,0});
+        Integer[] player2Scores = colorScores.getOrDefault((parent.getColor()==Color.WHITE?Color.BLACK:Color.WHITE), new Integer[]{0,0});
+        int ownScore = player1Scores[0] * player1Scores[1];
+        int oppScore = player2Scores[0] * player2Scores[1];
         return ownScore+(ownScore-oppScore);
 
         //TODO: expand eval func

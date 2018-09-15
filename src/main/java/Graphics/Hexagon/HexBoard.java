@@ -89,7 +89,7 @@ public class HexBoard extends Canvas {
      * @param hexTiles board representation
      * @return Map
      */
-    public Map<Color, Integer> evaluatePlayerScores(HexTile[][] hexTiles) {
+    public Map<Color, Integer[]> evaluatePlayerScores(HexTile[][] hexTiles) {
         int axialSize = hexTiles.length;
 
         // Reset groups
@@ -143,7 +143,7 @@ public class HexBoard extends Canvas {
         }
 
         // Check player scores
-        Map<Color, Integer> colorScores = new HashMap<Color, Integer>();
+        Map<Color, Integer[]> colorScores = new HashMap<Color, Integer[]>();
         for (Color color : colors) {
 
             // compute score
@@ -162,6 +162,7 @@ public class HexBoard extends Canvas {
                 }
             }
             int score = 0;
+            int numGroups = groupScores.size();
             for (Map.Entry<Integer, Integer> groupScore : groupScores.entrySet()) {
                 if (score == 0) {
                     score = groupScore.getValue();
@@ -170,7 +171,7 @@ public class HexBoard extends Canvas {
                 }
             }
 
-            colorScores.put(color, score);
+            colorScores.put(color, new Integer[]{score, numGroups});
         }
 
         return colorScores;
@@ -235,9 +236,10 @@ public class HexBoard extends Canvas {
     }
 
     public void updateAll() {
-        Map<Color, Integer> colorScores = evaluatePlayerScores(hexTiles);
+        Map<Color, Integer[]> colorScores = evaluatePlayerScores(hexTiles);
         for (Player player : parent.players) {
-            player.setScore(colorScores.getOrDefault(player.getColor(), 0));
+            Integer[] playerScores = colorScores.getOrDefault(player.getColor(), new Integer[]{0,0});
+            player.setScore(playerScores[0]);
         }
         parent.reloadScoreboard();
         repaint();
