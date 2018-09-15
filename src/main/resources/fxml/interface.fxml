@@ -70,6 +70,7 @@
                 <VBox BorderPane.alignment="CENTER" alignment="BOTTOM_RIGHT">
                     <VBox fx:id="settingsContainer" visible="false" managed="false" alignment="BOTTOM_RIGHT">
 
+                        <HBox alignment="CENTER_RIGHT"><Label>Show AI best board</Label><JFXToggleButton onAction="#ToggleBestBoard"/></HBox>
                         <HBox alignment="CENTER_RIGHT"><Label>Show group id</Label><JFXToggleButton onAction="#ToggleGroup"/></HBox>
                         <HBox alignment="CENTER_RIGHT"><Label>Show axes</Label><JFXToggleButton onAction="#ToggleAxes"/></HBox>
                         <Label/>

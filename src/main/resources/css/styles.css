@@ -80,7 +80,9 @@ JFXButton:hover {
 .input-group {
     -fx-padding: 30px;
 }
-
+.progress-indicator {
+    -fx-progress-color: #1E262C;
+}
 .sidebar-container {
     -fx-background-color: #1E262C;
     -fx-padding: 20;

@@ -60,5 +60,10 @@ public class HexGraphic {
             yOffset+=15;
             context.fillText(Integer.toString(tile.getQ()) + "," + Integer.toString(tile.getR()), cX[5]+10, cY[5]+yOffset);
         }
+        if (Config.GFX_PLACED_ENABLED && tile.getPlacedId() != -1) {
+            // Draw 'placed by' debug info
+            context.fillText(Integer.toString(tile.getPlacedId()), cX[1]-15, cY[1]+15); // depth
+            context.fillText(tile.getPlacedBy(), cX[1]-38, cY[1]+30); // MAX/MIN
+        }
     }
 }

@@ -21,15 +21,17 @@ public interface Agent {
         // Get game evaluation
         Map<Color, Integer> colorScores = board.evaluatePlayerScores(node);
 
-        //TODO: add proper eval func
-
         // 1. Return score of parent as eval result
 //        return colorScores.getOrDefault(parent.getColor(), 0);
 
-        // 2. Return score difference in favor of parent
-        int p1Score = colorScores.getOrDefault(parent.getColor(), 0);
-        int p2Score = colorScores.getOrDefault((parent.getColor()==Color.WHITE?Color.BLACK:Color.WHITE), 0);
-        return p1Score-p2Score;
+        // 2. Function of own score (higher is better) and opponent score (lower is better)
+        int ownScore = colorScores.getOrDefault(parent.getColor(), 0);
+        int oppScore = colorScores.getOrDefault((parent.getColor()==Color.WHITE?Color.BLACK:Color.WHITE), 0);
+        return ownScore+(ownScore-oppScore);
+
+        //TODO: expand eval func
+        // - num disjoint groups (higher is better)
+        // - avg distance to other tiles (higher is better)
     }
 
     /**
@@ -58,7 +60,7 @@ public interface Agent {
      * @param tilesToPlace List of colors to be placed
      * @return list of all legal children (size = n*(n-1), where n is the number of empty tiles in the given node)
      */
-    default List<HexTile[][]> GenerateChildren(HexTile[][] node, Color[] tilesToPlace, int depth) {
+    default List<HexTile[][]> GenerateChildren(HexTile[][] node, Color[] tilesToPlace, int depth, boolean isMaximizing) {
         List<HexTile[][]> children = new ArrayList<>();
 
         // Get all legal positions for this node
@@ -72,13 +74,14 @@ public interface Agent {
                 HexTile tile2 = possibleMoves.get(y);
                 if (!(tile.getQ() == tile2.getQ() && tile.getR() == tile2.getR())) {
                     HexTile[][] board = Helper.getGameStateDeepCopy(node);
+                    // Place first tile
                     board[tile.getQ()][tile.getR()].setColor(tilesToPlace[0]);
                     board[tile.getQ()][tile.getR()].setPlacedId(depth);
+                    board[tile.getQ()][tile.getR()].setPlacedBy(isMaximizing?"MAX":"MIN");
+                    // Place second tile
                     board[tile2.getQ()][tile2.getR()].setColor(tilesToPlace[1]);
                     board[tile2.getQ()][tile2.getR()].setPlacedId(depth);
-//                    if (tile.getPlacedId()==0 || tile2.getPlacedId()==0) {
-//                        int test =1;
-//                    }
+                    board[tile2.getQ()][tile2.getR()].setPlacedBy(isMaximizing?"MAX":"MIN");
                     children.add(board);
                 }
             }

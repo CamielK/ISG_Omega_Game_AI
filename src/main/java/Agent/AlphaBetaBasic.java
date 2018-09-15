@@ -10,7 +10,7 @@ import java.util.List;
 
 public class AlphaBetaBasic implements Agent {
 
-    private final int initialDepth = 2;
+    private final int initialDepth = 3;
 
     private HexBoard board;
     private Player parent;
@@ -33,6 +33,9 @@ public class AlphaBetaBasic implements Agent {
                 }
             }
         }
+
+        // Store best board for debugging
+        board.bestBoard = best.board;
     }
 
     /**
@@ -44,7 +47,7 @@ public class AlphaBetaBasic implements Agent {
         List<HexTile[][]> children = null;
         if (depth <= 0) terminal = true;
         else {
-            children = this.GenerateChildren(node, tilesToPlace, depth);
+            children = this.GenerateChildren(node, tilesToPlace, depth, isMaximizingPlayer);
         }
         int minChildrenRequired = (parent.getColor() == Color.WHITE ? 4*3 : 2); // Calculate end game requirement for 2 players
         if (terminal || children.size() <= minChildrenRequired) {

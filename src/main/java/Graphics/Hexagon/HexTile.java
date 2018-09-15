@@ -13,7 +13,8 @@ public class HexTile {
     private double[] cornersY = new double[6];
     private Color color = Color.EMPTY;
     private int group = 0;
-    private int placedId = -1;
+    private int placedId = -1; // Turn (or search depth) at which this tile was placed, used for debugging
+    private String placedBy = ""; // Player id by which this tile was placed, used for debugging
 
     public HexTile(int q, int r) {
         setQ(q);
@@ -74,5 +75,13 @@ public class HexTile {
 
     public void setPlacedId(int placedId) {
         this.placedId = placedId;
+    }
+
+    public String getPlacedBy() {
+        return placedBy;
+    }
+
+    public void setPlacedBy(String placedBy) {
+        this.placedBy = placedBy;
     }
 }

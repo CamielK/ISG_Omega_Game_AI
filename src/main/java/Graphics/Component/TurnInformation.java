@@ -10,6 +10,7 @@ import javafx.animation.PathTransition;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -27,21 +28,21 @@ public class TurnInformation {
         info.setAlignment(Pos.CENTER);
         info.getChildren().addAll(new Label("Current turn:"), labelCurrent);
 
-        // Show tiles left in this turn
-        VBox tilesContainer = new VBox();
-        tilesContainer.setAlignment(Pos.CENTER_LEFT);
-        HBox tilesCollection = new HBox(20);
-        tilesCollection.setAlignment(Pos.CENTER);
-        for (int i=0; i < parent.currentTurnTilesLeft; i++) {
-            Polygon tile = Graphics.Hexagon.Polygon.getPolygon(parent.colors[i], 1.3);
-            tilesCollection.getChildren().add(tile);
-        }
-        tilesContainer.getChildren().addAll(new Label("Tiles left in this turn: " + parent.currentTurnTilesLeft), tilesCollection);
-
         parent.currentPlayerArea.getChildren().clear();
-        parent.currentPlayerArea.getChildren().addAll(info, new Separator(Orientation.VERTICAL), tilesContainer, new Separator(Orientation.VERTICAL));
+        parent.currentPlayerArea.getChildren().addAll(info, new Separator(Orientation.VERTICAL));
 
         if (parent.currentPlayerIsHuman()) {
+            // Show tiles left in this turn
+            VBox tilesContainer = new VBox();
+            tilesContainer.setAlignment(Pos.CENTER_LEFT);
+            HBox tilesCollection = new HBox(20);
+            tilesCollection.setAlignment(Pos.CENTER);
+            for (int i=0; i < parent.currentTurnTilesLeft; i++) {
+                Polygon tile = Graphics.Hexagon.Polygon.getPolygon(parent.colors[i], 1.3);
+                tilesCollection.getChildren().add(tile);
+            }
+            tilesContainer.getChildren().addAll(new Label("Tiles left in this turn: " + parent.currentTurnTilesLeft), tilesCollection);
+
             // End turn button
             JFXButton btnUndo = new JFXButton("Undo turn");
             btnUndo.getStyleClass().add("btn-info");
@@ -72,11 +73,16 @@ public class TurnInformation {
             }
             btnEnd.getStyleClass().add("btn-error");
             btnEnd.setOnAction(event -> parent.endTurn());
-            parent.currentPlayerArea.getChildren().addAll(btnUndo, btnEnd);
+            parent.currentPlayerArea.getChildren().addAll(tilesContainer, new Separator(Orientation.VERTICAL), btnUndo, btnEnd);
         } else {
+            VBox box = new VBox(3);
+            box.setAlignment(Pos.CENTER);
             Label labelAI = new Label("Waiting for AI move...");
             labelAI.getStyleClass().add("player-label");
-            parent.currentPlayerArea.getChildren().addAll(labelAI);
+            box.getChildren().addAll(labelAI, new Label(parent.players[parent.currentTurnPlayerId].getAgent().getClass().getSimpleName()));
+            ProgressIndicator loading = new ProgressIndicator();
+            loading.getStyleClass().add("progress-indicator");
+            parent.currentPlayerArea.getChildren().addAll(box, loading);
         }
     }
 }

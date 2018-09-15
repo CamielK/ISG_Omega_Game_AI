@@ -4,6 +4,7 @@ import Agent.Agent;
 import Agent.Human;
 import Agent.MinMaxBasic;
 import Agent.AlphaBetaBasic;
+import Agent.NegaMax;
 import Agent.Random;
 import Library.Enum.Color;
 import Graphics.Component.Scoreboard;
@@ -135,6 +136,7 @@ public class Controller implements Initializable {
 
             JFXComboBox<Label> jfxCombo = new JFXComboBox<Label>();
             jfxCombo.getItems().add(new Label(Human.class.getName()));
+            jfxCombo.getItems().add(new Label(NegaMax.class.getName()));
             jfxCombo.getItems().add(new Label(AlphaBetaBasic.class.getName()));
             jfxCombo.getItems().add(new Label(MinMaxBasic.class.getName()));
             jfxCombo.getItems().add(new Label(Random.class.getName()));
@@ -173,15 +175,6 @@ public class Controller implements Initializable {
     private void handleTurn() {
         Player currentPlayer = players[currentTurnPlayerId];
         if (!(currentPlayer.getAgent() instanceof Human)) {
-//            Thread turn = new Thread(){
-//                public void run() {
-//                    currentPlayer.GetMove(board, Arrays.copyOfRange(colors, 0, Config.NUM_PLAYERS));
-//                    currentTurnTilesLeft = 0;
-//                    board.updateAll();
-//                    endTurn();
-//                }
-//            };
-//            turn.start();
             Service<Void> service = new Service<Void>() {
                 @Override
                 protected Task<Void> createTask() {
@@ -315,6 +308,13 @@ public class Controller implements Initializable {
     @FXML protected void ToggleAxes(ActionEvent event) {
         Config.GFX_AXES_ENABLED = !Config.GFX_AXES_ENABLED;
         board.repaint();
+    }
+    private boolean showBestBoard = false;
+    @FXML protected void ToggleBestBoard(ActionEvent event) {
+        showBestBoard = !showBestBoard;
+        Config.GFX_PLACED_ENABLED = showBestBoard;
+        if (!showBestBoard) board.repaint();
+        else board.repaintBestBoard();
     }
     @FXML protected void SwapColors(ActionEvent event) {
         Color c = players[0].getColor();

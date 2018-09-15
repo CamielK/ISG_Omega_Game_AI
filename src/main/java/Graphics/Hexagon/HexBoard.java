@@ -28,6 +28,9 @@ public class HexBoard extends Canvas {
     private Controller parent;
     private ArrayList<HexTile> moveHistory = new ArrayList<>();
 
+    // AI debug vars
+    public HexTile[][] bestBoard = null;
+
     public HexBoard(int size, Controller parent) {
         this.parent = parent;
         this.size = size;
@@ -240,18 +243,39 @@ public class HexBoard extends Canvas {
         repaint();
     }
 
+    /**
+     * Draw best board from last AI move for debugging
+     */
+    public void repaintBestBoard() {
+        if (bestBoard != null) {
+            getGraphicsContext2D().clearRect(0,0,this.getWidth(),this.getHeight());
+            for (int q=0; q<axialSize; q++) {
+                for (int r=0; r<axialSize; r++) {
+                    // Check hexagon boundaries
+                    if (bestBoard[q][r] != null) {
+                        repaintCell(bestBoard, q, r);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Draw regular hexagon board grid
+     */
     public void repaint() {
         getGraphicsContext2D().clearRect(0,0,this.getWidth(),this.getHeight());
         for (int q=0; q<axialSize; q++) {
             for (int r=0; r<axialSize; r++) {
                 // Check hexagon boundaries
                 if (hexTiles[q][r] != null) {
-                    repaintCell(q, r);
+                    repaintCell(hexTiles, q, r);
                 }
             }
         }
     }
-    private void repaintCell(int q, int r) {
+
+    private void repaintCell(HexTile[][] hexTiles, int q, int r) {
         if (hexCellHandler != null) {
             hexCellHandler.refresh(q, r, hexTiles, hexGraphic);
         }

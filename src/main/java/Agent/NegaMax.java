@@ -1,14 +1,14 @@
 package Agent;
 
-import Library.Enum.Color;
 import Graphics.Hexagon.HexBoard;
 import Graphics.Hexagon.HexTile;
+import Library.Enum.Color;
 import Library.Model.Move;
 import Library.Model.Player;
 
 import java.util.List;
 
-public class MinMaxBasic implements Agent {
+public class NegaMax implements Agent {
 
     private final int initialDepth = 3;
 
@@ -21,8 +21,8 @@ public class MinMaxBasic implements Agent {
         this.parent = parent;
         this.tilesToPlace = tilesToPlace;
 
-        Move best = MinMax(board.getGameState(), initialDepth, true);
-        System.out.println("MinMaxBasic found score: " + best.score);
+        Move best = NegaMax(board.getGameState(), initialDepth, Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
+        System.out.println("NegaMax found score: " + best.score);
 
         // Get the first 2 tiles placed by the minmax algorithm
         for (int q = 0; q < best.board.length; q++) {
@@ -39,39 +39,29 @@ public class MinMaxBasic implements Agent {
     }
 
     /**
-     * Returns the best possible board configuration (according to minmax) defined as an array of HexTiles
+     * Returns the best possible board configuration (according to negamax with alpha-beta pruning)
      */
-    private Move MinMax(HexTile[][] node, int depth, boolean isMaximizingPlayer) {
+    private Move NegaMax(HexTile[][] node, int depth, double alpha, double beta, int color) {
         // Check for leaf nodes
         boolean terminal = false;
         List<HexTile[][]> children = null;
         if (depth <= 0) terminal = true;
         else {
-            children = this.GenerateChildren(node, tilesToPlace, depth, isMaximizingPlayer);
+            children = this.GenerateChildren(node, tilesToPlace, depth, color == 1);
         }
         int minChildrenRequired = (parent.getColor() == Color.WHITE ? 4*3 : 2); // Calculate end game requirement for 2 players
         if (terminal || children.size() <= minChildrenRequired) {
-            return new Move(this.EvaluateNode(node, board, parent), node);
+            return new Move(color * this.EvaluateNode(node, board, parent), node);
         }
 
-        if (isMaximizingPlayer) {
-            Move value = new Move(Integer.MIN_VALUE, null);
-            for (HexTile[][] child : children) {
-                Move value_child = MinMax(child, depth - 1, false);
-                if (value_child.score > value.score) {
-                    value = value_child;
-                }
-            }
-            return value;
-        } else {
-            Move value = new Move(Integer.MAX_VALUE, null);
-            for (HexTile[][] child : children) {
-                Move value_child = MinMax(child, depth - 1, true);
-                if (value_child.score < value.score) {
-                    value = value_child;
-                }
-            }
-            return value;
+        Move value = new Move(Integer.MIN_VALUE, null);
+        for (HexTile[][] child : children) {
+            Move value_child = NegaMax(child, depth - 1, -beta, -alpha, -color); // Swap alpha/beta and negate
+            value_child.score = -value_child.score; // Negate
+            if (value_child.score > value.score) value = value_child;
+            if (value_child.score > alpha) alpha = value.score;
+            if (alpha >= beta) break;
         }
+        return value;
     }
 }

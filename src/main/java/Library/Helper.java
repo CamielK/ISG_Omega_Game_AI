@@ -19,6 +19,7 @@ public class Helper {
                     copy_tile.setGroup(tile.getGroup());
                     copy_tile.setColor(tile.getColor());
                     copy_tile.setPlacedId(tile.getPlacedId());
+                    copy_tile.setPlacedBy(tile.getPlacedBy());
                     copy_tile.setCornersX(Arrays.copyOf(tile.getCornersX(), tile.getCornersX().length));
                     copy_tile.setCornersY(Arrays.copyOf(tile.getCornersY(), tile.getCornersY().length));
                     copy[q][r] = copy_tile;
