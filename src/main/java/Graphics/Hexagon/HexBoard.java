@@ -125,7 +125,7 @@ public class HexBoard extends Canvas {
 
                             if (hasGroupingNeighbour > 0) {
                                 // This tile joins 2 groups together > update that group
-                                joinTileGroupsWithColor(tile.getColor(), hasGroupingNeighbour, tile.getGroup());
+                                joinTileGroupsWithColor(hexTiles, tile.getColor(), hasGroupingNeighbour, tile.getGroup());
                                 break; // no need to compare any further
                             } else {
                                 hexTiles[q][r].setGroup(tile.getGroup());
@@ -222,7 +222,7 @@ public class HexBoard extends Canvas {
     /**
      * Joins group2 into group1 of the same color
      */
-    private void joinTileGroupsWithColor(Color color, int group1, int group2) {
+    private void joinTileGroupsWithColor(HexTile[][] hexTiles, Color color, int group1, int group2) {
         for (int q=0; q<axialSize; q++) {
             for (int r = 0; r < axialSize; r++) {
                 if (hexTiles[q][r] != null && hexTiles[q][r].getColor() == color) {
