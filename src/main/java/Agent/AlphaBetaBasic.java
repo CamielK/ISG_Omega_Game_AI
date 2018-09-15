@@ -1,16 +1,16 @@
 package Agent;
 
-import Enum.Color;
+import Library.Enum.Color;
 import Graphics.Hexagon.HexBoard;
 import Graphics.Hexagon.HexTile;
-import Library.Move;
-import Library.Player;
+import Library.Model.Move;
+import Library.Model.Player;
 
 import java.util.List;
 
 public class AlphaBetaBasic implements Agent {
 
-    private final int initialDepth = 3;
+    private final int initialDepth = 2;
 
     private HexBoard board;
     private Player parent;
@@ -36,7 +36,7 @@ public class AlphaBetaBasic implements Agent {
     }
 
     /**
-     * Returns the best possible board configuration (according to minmax) defined as an array of HexTiles
+     * Returns the best possible board configuration (according to minmax with alpha beta pruning)
      */
     private Move AlphaBeta(HexTile[][] node, int depth, double alpha, double beta, boolean isMaximizingPlayer) {
         // Check for leaf nodes

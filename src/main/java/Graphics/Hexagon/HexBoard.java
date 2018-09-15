@@ -1,15 +1,14 @@
 package Graphics.Hexagon;
 
 import Graphics.Controller;
-import Library.Player;
+import Library.Model.Player;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import Enum.Color;
+import Library.Enum.Color;
 
 /**
  * Inspired by: https://gist.github.com/Akjir/5721503, https://www.redblobgames.com/grids/hexagons/

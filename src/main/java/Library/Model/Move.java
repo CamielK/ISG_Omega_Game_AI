@@ -1,4 +1,4 @@
-package Library;
+package Library.Model;
 
 import Graphics.Hexagon.HexTile;
 

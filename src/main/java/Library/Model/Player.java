@@ -1,8 +1,8 @@
-package Library;
+package Library.Model;
 
 import Agent.Agent;
 import Agent.Human;
-import Enum.Color;
+import Library.Enum.Color;
 import Graphics.Hexagon.HexBoard;
 
 public class Player {

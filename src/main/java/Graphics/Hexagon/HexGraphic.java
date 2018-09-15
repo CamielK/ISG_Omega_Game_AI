@@ -2,7 +2,7 @@ package Graphics.Hexagon;
 
 import Library.Config;
 import javafx.scene.canvas.GraphicsContext;
-import Enum.Color;
+import Library.Enum.Color;
 
 
 /**

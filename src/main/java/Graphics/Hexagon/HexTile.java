@@ -1,7 +1,6 @@
 package Graphics.Hexagon;
 
-import javafx.scene.canvas.Canvas;
-import Enum.Color;
+import Library.Enum.Color;
 
 /**
  * Inspired by: https://gist.github.com/Akjir/5721503

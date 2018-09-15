@@ -5,12 +5,12 @@ import Agent.Human;
 import Agent.MinMaxBasic;
 import Agent.AlphaBetaBasic;
 import Agent.Random;
-import Enum.Color;
+import Library.Enum.Color;
 import Graphics.Component.Scoreboard;
 import Graphics.Component.TurnInformation;
 import Graphics.Hexagon.HexBoard;
 import Library.Config;
-import Library.Player;
+import Library.Model.Player;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXSlider;
@@ -18,10 +18,11 @@ import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContentDisplay;
@@ -35,18 +36,18 @@ import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 public class Controller implements Initializable {
 
     private final int WIDTH_PLAYERS = 260;
-    public final int NUM_PLAYERS = 2;
     public final Color[] colors = new Color[]{Color.WHITE, Color.BLACK, Color.RED, Color.BLUE};
     private Map<Color, Integer> colorSelectMap = new HashMap<Color, Integer>();
 
     private HexBoard board;
     public Player[] players;
     public int currentTurnPlayerId = 0;
-    public int currentTurnTilesLeft = NUM_PLAYERS;
+    public int currentTurnTilesLeft = Config.NUM_PLAYERS;
 
     // containers
     @FXML public BorderPane root;
@@ -87,7 +88,7 @@ public class Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         colorSelectMap.put(Color.WHITE, 0);
         colorSelectMap.put(Color.BLACK, 1);
-        initPlayerSelect(NUM_PLAYERS);
+        initPlayerSelect(Config.NUM_PLAYERS);
         sliderHexSize.valueProperty().addListener((observable, oldValue, newValue) -> {
             int value = newValue.intValue();
             labelHexSize.setText(Integer.toString(value));
@@ -172,33 +173,69 @@ public class Controller implements Initializable {
     private void handleTurn() {
         Player currentPlayer = players[currentTurnPlayerId];
         if (!(currentPlayer.getAgent() instanceof Human)) {
-            currentPlayer.GetMove(board, Arrays.copyOfRange(colors, 0, NUM_PLAYERS));
-            currentTurnTilesLeft = 0;
-            board.updateAll();
-            endTurn();
+//            Thread turn = new Thread(){
+//                public void run() {
+//                    currentPlayer.GetMove(board, Arrays.copyOfRange(colors, 0, Config.NUM_PLAYERS));
+//                    currentTurnTilesLeft = 0;
+//                    board.updateAll();
+//                    endTurn();
+//                }
+//            };
+//            turn.start();
+            Service<Void> service = new Service<Void>() {
+                @Override
+                protected Task<Void> createTask() {
+                    return new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                            //Background work
+                            currentPlayer.GetMove(board, Arrays.copyOfRange(colors, 0, Config.NUM_PLAYERS));
+                            currentTurnTilesLeft = 0;
+
+                            final CountDownLatch latch = new CountDownLatch(1);
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try{
+                                        //FX Stuff done here
+                                        board.updateAll();
+                                        endTurn();
+                                    }finally{
+                                        latch.countDown();
+                                    }
+                                }
+                            });
+                            latch.await();
+                            //Keep with the background work
+                            return null;
+                        }
+                    };
+                }
+            };
+            service.start();
         } else {
             // Human turns are not handled > wait for user interaction instead
         }
     }
 
     public void undoTurn() {
-        int numUndo = NUM_PLAYERS-currentTurnTilesLeft;
-        currentTurnTilesLeft = NUM_PLAYERS;
+        int numUndo = Config.NUM_PLAYERS-currentTurnTilesLeft;
+        currentTurnTilesLeft = Config.NUM_PLAYERS;
         board.undoMoves(numUndo);
     }
 
     public void endTurn() {
         if (currentTurnTilesLeft == 0) {
-            currentTurnTilesLeft = NUM_PLAYERS;
+            currentTurnTilesLeft = Config.NUM_PLAYERS;
             currentTurnPlayerId++;
-            if (currentTurnPlayerId > NUM_PLAYERS-1) {
+            if (currentTurnPlayerId > Config.NUM_PLAYERS-1) {
                 currentTurnPlayerId = 0;
             }
             reloadScoreboard();
         }
 
         // Check game termination
-        if (players[currentTurnPlayerId].getColor() == Color.WHITE && board.numEmptySpaces() < Math.pow(NUM_PLAYERS, NUM_PLAYERS)) {
+        if (players[currentTurnPlayerId].getColor() == Color.WHITE && board.numEmptySpaces() < Math.pow(Config.NUM_PLAYERS, Config.NUM_PLAYERS)) {
             showEndGameDialog();
         } else {
             handleTurn();
@@ -301,8 +338,13 @@ public class Controller implements Initializable {
         SetBoardContainerVisible(false);
         SetPlayerContainerVisible(false);
         startContainer.setVisible(true);
-        currentTurnTilesLeft = NUM_PLAYERS;
-//        initPlayerSelection(NUM_PLAYERS);
+        currentTurnTilesLeft = Config.NUM_PLAYERS;
+        for (Player player : players) {
+            if (player.getColor() == Color.WHITE) {
+                currentTurnPlayerId = player.getId();
+            }
+        }
+//        initPlayerSelection(Config.NUM_PLAYERS);
     }
     private void resetBoard(int size) {
         board = new HexBoard(size, this);

@@ -1,21 +1,14 @@
 package Graphics.Component;
 
 import Graphics.Controller;
-import Library.Player;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXChipView;
-import de.jensd.fx.fontawesome.AwesomeDude;
-import de.jensd.fx.fontawesome.AwesomeIcon;
+import Library.Model.Player;
 import javafx.animation.Interpolator;
-import javafx.animation.PathTransition;
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.shape.Arc;
 import javafx.scene.shape.Polygon;
 import javafx.util.Duration;
 

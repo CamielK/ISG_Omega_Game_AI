@@ -1,9 +1,8 @@
 package Agent;
 
-import Agent.Agent;
-import Enum.Color;
+import Library.Enum.Color;
 import Graphics.Hexagon.HexBoard;
-import Library.Player;
+import Library.Model.Player;
 
 public class Human implements Agent {
 

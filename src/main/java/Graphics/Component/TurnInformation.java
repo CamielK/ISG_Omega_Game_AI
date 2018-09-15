@@ -1,13 +1,12 @@
 package Graphics.Component;
 
 import Graphics.Controller;
-import Library.Player;
+import Library.Config;
 import com.jfoenix.controls.JFXButton;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
-import javafx.animation.ScaleTransition;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -49,7 +48,7 @@ public class TurnInformation {
             btnUndo.setOnAction(event -> parent.undoTurn());
             btnUndo.setDisable(true);
             AwesomeDude.setIcon(btnUndo, AwesomeIcon.CHEVRON_CIRCLE_LEFT, "24px");
-            if (parent.currentTurnTilesLeft < parent.NUM_PLAYERS) {
+            if (parent.currentTurnTilesLeft < Config.NUM_PLAYERS) {
                 btnUndo.setDisable(false);
             }
             JFXButton btnEnd = new JFXButton("End turn");

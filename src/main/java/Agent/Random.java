@@ -1,11 +1,10 @@
 package Agent;
 
-import Enum.Color;
+import Library.Enum.Color;
 import Graphics.Hexagon.HexBoard;
 import Graphics.Hexagon.HexTile;
-import Library.Player;
+import Library.Model.Player;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
