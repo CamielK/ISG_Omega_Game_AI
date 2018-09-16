@@ -14,6 +14,8 @@ public class Random implements Agent {
         // Check possible tiles
         List<HexTile> possibleMoves = GetPossibleMoves(board.getGameState());
 
+        GetMaxGameDepth(board, parent);
+
         // Pick a random set from the available moves
         Collections.shuffle(possibleMoves);
         possibleMoves = possibleMoves.subList(0, tilesToPlace.length);

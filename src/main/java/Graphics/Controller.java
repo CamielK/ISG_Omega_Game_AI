@@ -4,6 +4,7 @@ import Agent.Agent;
 import Agent.Human;
 import Agent.MinMaxBasic;
 import Agent.AlphaBetaBasic;
+import Agent.IterativeDeepening;
 import Agent.NegaMax;
 import Agent.Random;
 import Library.Enum.Color;
@@ -136,6 +137,7 @@ public class Controller implements Initializable {
 
             JFXComboBox<Label> jfxCombo = new JFXComboBox<Label>();
             jfxCombo.getItems().add(new Label(Human.class.getName()));
+            jfxCombo.getItems().add(new Label(IterativeDeepening.class.getName()));
             jfxCombo.getItems().add(new Label(NegaMax.class.getName()));
             jfxCombo.getItems().add(new Label(AlphaBetaBasic.class.getName()));
             jfxCombo.getItems().add(new Label(MinMaxBasic.class.getName()));

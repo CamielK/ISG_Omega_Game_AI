@@ -20,9 +20,12 @@ public interface Agent {
     default int EvaluateNode(HexTile[][] node, HexBoard board, Player parent) {
         // Get game evaluation
         Map<Color, Integer[]> colorScores = board.evaluatePlayerScores(node);
+        Integer[] player1Scores = colorScores.getOrDefault(parent.getColor(), new Integer[]{0,0});
+        Integer[] player2Scores = colorScores.getOrDefault((parent.getColor()==Color.WHITE?Color.BLACK:Color.WHITE), new Integer[]{0,0});
 
         // 1. Return score of parent as eval result
-//        return colorScores.getOrDefault(parent.getColor(), 0);
+//        return player1Scores[0]; // game eval score for AI player
+//        return player1Scores[0] * player1Scores[1]; // game eval score * num disjoint groups
 
         // 2. Function of own score (higher is better) and opponent score (lower is better)
 //        int ownScore = colorScores.getOrDefault(parent.getColor(), 0);
@@ -30,11 +33,10 @@ public interface Agent {
 //        return ownScore+(ownScore-oppScore);
 
         // 3. Num disjoint groups
-        Integer[] player1Scores = colorScores.getOrDefault(parent.getColor(), new Integer[]{0,0});
-        Integer[] player2Scores = colorScores.getOrDefault((parent.getColor()==Color.WHITE?Color.BLACK:Color.WHITE), new Integer[]{0,0});
         int ownScore = player1Scores[0] * player1Scores[1];
         int oppScore = player2Scores[0] * player2Scores[1];
-        return ownScore+(ownScore-oppScore);
+//        return ownScore+(ownScore-oppScore); // own score + diff
+        return ownScore * (10-player2Scores[1]); // emphasize low number of opponent groups
 
         //TODO: expand eval func
         // - num disjoint groups (higher is better)
@@ -94,5 +96,15 @@ public interface Agent {
             }
         }
         return children;
+    }
+
+    /**
+     * Returns the max depth a legal leaf node can be at (terminal game nodes are always at the same depth; given by the number of available tiles)
+     */
+    default int GetMaxGameDepth(HexBoard board, Player parent) {
+        int emptyTiles = board.numEmptySpaces();
+        if (parent.getColor() != Color.WHITE) emptyTiles -= 2;
+        int maxDepth = (int) Math.floor(emptyTiles/2);
+        return maxDepth;
     }
 }
