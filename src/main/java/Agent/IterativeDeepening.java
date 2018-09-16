@@ -19,8 +19,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class IterativeDeepening implements Agent {
 
-//    private final int maxSearchTime = 2*60;
-    private final int maxSearchTime = 1*30;
+    private final int maxSearchTime = 2*60;
+//    private final int maxSearchTime = 1*30;
 
     private HexBoard board;
     private Player parent;
