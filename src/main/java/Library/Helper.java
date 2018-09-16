@@ -8,7 +8,7 @@ public class Helper {
     /**
      * Returns a deep copy of the supplied game state
      */
-    public static HexTile[][] getGameStateDeepCopy(HexTile[][] hexTiles) {
+    public static HexTile[][] getGameStateDeepCopy(HexTile[][] hexTiles, boolean retainGroupId) {
         int axialSize = hexTiles.length;
         HexTile[][] copy = new HexTile[axialSize][axialSize];
         for (int q=0; q<axialSize; q++) {
@@ -16,7 +16,7 @@ public class Helper {
                 HexTile tile = hexTiles[q][r];
                 if (tile != null) {
                     HexTile copy_tile = new HexTile(q, r);
-                    copy_tile.setGroup(tile.getGroup());
+                    if (retainGroupId) copy_tile.setGroup(tile.getGroup());
                     copy_tile.setColor(tile.getColor());
                     copy_tile.setPlacedId(tile.getPlacedId());
                     copy_tile.setPlacedBy(tile.getPlacedBy());

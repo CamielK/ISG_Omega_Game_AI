@@ -90,14 +90,15 @@ public class HexBoard extends Canvas {
      * @param hexTiles board representation
      * @return Map
      */
-    public Map<Color, Integer[]> evaluatePlayerScores(HexTile[][] hexTiles) {
-        long time = System.nanoTime();
+    public Map<Color, Integer[]> evaluatePlayerScores(HexTile[][] hexTiles, boolean resetGroupIds) {
         int axialSize = hexTiles.length;
 
         // Reset groups
-        for (int q=0; q<axialSize; q++) {
-            for (int r = 0; r < axialSize; r++) {
-                if (hexTiles[q][r]!=null) hexTiles[q][r].setGroup(0);
+        if (resetGroupIds) {
+            for (int q=0; q<axialSize; q++) {
+                for (int r = 0; r < axialSize; r++) {
+                    if (hexTiles[q][r]!=null) hexTiles[q][r].setGroup(0);
+                }
             }
         }
 
@@ -117,8 +118,6 @@ public class HexBoard extends Canvas {
             }
         }
 
-        long finished = (System.nanoTime()-time);
-        System.out.println("eval2: " + finished);
         return colorScores;
     }
 
@@ -185,7 +184,7 @@ public class HexBoard extends Canvas {
     }
 
     public void updateAll() {
-        Map<Color, Integer[]> colorScores = evaluatePlayerScores(hexTiles);
+        Map<Color, Integer[]> colorScores = evaluatePlayerScores(hexTiles, true);
         for (Player player : parent.players) {
             Integer[] playerScores = colorScores.getOrDefault(player.getColor(), new Integer[]{0,0});
             player.setScore(playerScores[0]);

@@ -10,7 +10,7 @@ import java.util.List;
 
 public class NegaMax implements Agent {
 
-    private final int initialDepth = 4;
+    private final int initialDepth = 3;
 
     private HexBoard board;
     private Player parent;

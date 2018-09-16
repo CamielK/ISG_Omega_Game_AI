@@ -19,7 +19,7 @@ public interface Agent {
 
     default int EvaluateNode(HexTile[][] node, HexBoard board, Player parent) {
         // Get game evaluation
-        Map<Color, Integer[]> colorScores = board.evaluatePlayerScores(node);
+        Map<Color, Integer[]> colorScores = board.evaluatePlayerScores(node, false);
         Integer[] player1Scores = colorScores.getOrDefault(parent.getColor(), new Integer[]{0,0});
         Integer[] player2Scores = colorScores.getOrDefault((parent.getColor()==Color.WHITE?Color.BLACK:Color.WHITE), new Integer[]{0,0});
 
@@ -82,7 +82,7 @@ public interface Agent {
                 HexTile tile = possibleMoves.get(x);
                 HexTile tile2 = possibleMoves.get(y);
                 if (!(tile.getQ() == tile2.getQ() && tile.getR() == tile2.getR())) {
-                    HexTile[][] board = Helper.getGameStateDeepCopy(node);
+                    HexTile[][] board = Helper.getGameStateDeepCopy(node, false);
                     // Place first tile
                     board[tile.getQ()][tile.getR()].setColor(tilesToPlace[0]);
                     board[tile.getQ()][tile.getR()].setPlacedId(depth);
