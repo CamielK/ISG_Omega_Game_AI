@@ -117,6 +117,9 @@ public class Controller implements Initializable {
         AwesomeDude.setIcon(btnSwap, AwesomeIcon.EXCHANGE, "32px", ContentDisplay.RIGHT);
     }
 
+    /**
+     * Initialize player selection (agents and color)
+     */
     private void initPlayerSelect(int numPlayers) {
         // Shuffle color assignment
         Color[] used_colors = Arrays.copyOfRange(colors, 0, numPlayers);
@@ -176,6 +179,10 @@ public class Controller implements Initializable {
         TurnInformation.getTurnInformation(this);
     }
 
+    /**
+     * If the current player is not human, call GetMove() on the player agent
+     * This is executed in a new thread to prevent locking the interface
+     */
     private void handleTurn() {
         Player currentPlayer = players[currentTurnPlayerId];
         if (!(currentPlayer.getAgent() instanceof Human)) {
@@ -185,16 +192,16 @@ public class Controller implements Initializable {
                     return new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                            //Background work
+                            // Background work: request a move from the agent given the current game state
                             currentPlayer.GetMove(board, Arrays.copyOfRange(colors, 0, Config.NUM_PLAYERS));
                             currentTurnTilesLeft = 0;
 
+                            // Add JavaFX interactions as a runLater
                             final CountDownLatch latch = new CountDownLatch(1);
                             Platform.runLater(new Runnable() {
                                 @Override
                                 public void run() {
                                     try{
-                                        //FX Stuff done here
                                         board.updateAll();
                                         endTurn();
                                     }finally{
@@ -203,7 +210,6 @@ public class Controller implements Initializable {
                                 }
                             });
                             latch.await();
-                            //Keep with the background work
                             return null;
                         }
                     };
@@ -239,6 +245,9 @@ public class Controller implements Initializable {
         }
     }
 
+    /**
+     * Show game results in a dialog
+     */
     private void showEndGameDialog() {
         Player winner = null;
         for (Player player : players) {
@@ -257,6 +266,9 @@ public class Controller implements Initializable {
         }
     }
 
+    /**
+     * Switch hexagon color in player select interface
+     */
     private void updatePlayerSelectionGFX() {
         polyP1.getChildren().clear();
         polyP1.getChildren().add(Graphics.Hexagon.Polygon.getPolygon(players[0].getColor(), 1.5));
