@@ -1,10 +1,9 @@
-package Agent;
+package Omega.Agent.TranspositionTable;
 
-import Graphics.Hexagon.HexTile;
-import Library.Config;
-import Library.Enum.Color;
-import Library.Enum.Flag;
-import Library.Model.Move;
+import Omega.Agent.TranspositionTable.TableItem;
+import Omega.Graphics.Hexagon.HexTile;
+import Omega.Library.Config;
+import Omega.Library.Model.Move;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,12 +18,14 @@ public class TranspositionTable {
      */
     public TranspositionTable(HexTile[][] board) {
         // Randomly initialize the encodings for each tile and state
-        encodings = new long[board.length][board.length][Config.COLORS_IN_PLAY.length];
-        for (int q = 0; q < board.length; q++) {
-            for (int r = 0; r < board.length; r++) {
-                if (board[q][r] != null) {
-                    for (int c = 0; c < Config.COLORS_IN_PLAY.length; c++) {
-                        encodings[q][r][c] = new java.util.Random().nextLong() & Long.MAX_VALUE; // duplicate random generation is ignored
+        if (encodings == null) {
+            encodings = new long[board.length][board.length][Config.COLORS_IN_PLAY.length];
+            for (int q = 0; q < board.length; q++) {
+                for (int r = 0; r < board.length; r++) {
+                    if (board[q][r] != null) {
+                        for (int c = 0; c < Config.COLORS_IN_PLAY.length; c++) {
+                            encodings[q][r][c] = new java.util.Random().nextLong() & Long.MAX_VALUE; // duplicate random generation is ignored
+                        }
                     }
                 }
             }
@@ -89,15 +90,3 @@ public class TranspositionTable {
     }
 }
 
-class TableItem {
-    public int value;
-    public short depth;
-    public HexTile[][] bestMove;
-    public Flag flag;
-    public TableItem(int value, HexTile[][] bestMove, short depth, Flag flag) {
-        this.value = value;
-        this.bestMove = bestMove;
-        this.depth = depth;
-        this.flag = flag;
-    }
-}

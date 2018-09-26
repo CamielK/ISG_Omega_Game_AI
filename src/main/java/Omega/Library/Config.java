@@ -1,6 +1,6 @@
-package Library;
+package Omega.Library;
 
-import Library.Enum.Color;
+import Omega.Library.Enum.Color;
 
 public class Config {
     public static boolean GFX_GROUP_ENABLED = false;

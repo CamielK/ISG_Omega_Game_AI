@@ -1,8 +1,8 @@
-package Graphics.Hexagon;
+package Omega.Graphics.Hexagon;
 
-import Library.Config;
+import Omega.Library.Config;
 import javafx.scene.canvas.GraphicsContext;
-import Library.Enum.Color;
+import Omega.Library.Enum.Color;
 
 
 /**

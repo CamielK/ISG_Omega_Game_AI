@@ -1,7 +1,7 @@
-package Graphics.Component;
+package Omega.Graphics.Component;
 
-import Graphics.Controller;
-import Library.Model.Player;
+import Omega.Graphics.Controller;
+import Omega.Library.Model.Player;
 import javafx.animation.Interpolator;
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Orientation;
@@ -20,7 +20,7 @@ public class Scoreboard {
             title.setAlignment(Pos.CENTER);
             Label label = new Label("Player " + Integer.toString(player.getNumber()));
             label.getStyleClass().add("player-label");
-            Polygon poly = Graphics.Hexagon.Polygon.getPolygon(player.getColor());
+            Polygon poly = Omega.Graphics.Hexagon.Polygon.getPolygon(player.getColor());
             Separator sep = new Separator(Orientation.VERTICAL);
             sep.setStyle("-fx-padding: 20");
 

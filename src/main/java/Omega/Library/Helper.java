@@ -1,6 +1,6 @@
-package Library;
+package Omega.Library;
 
-import Graphics.Hexagon.HexTile;
+import Omega.Graphics.Hexagon.HexTile;
 
 import java.util.Arrays;
 

@@ -1,19 +1,16 @@
-package Graphics;
+package Omega.Graphics;
 
-import Agent.Agent;
-import Agent.Human;
-import Agent.MinMaxBasic;
-import Agent.AlphaBetaBasic;
-import Agent.IterativeDeepening;
-import Agent.IterativeDeepeningTT;
-import Agent.NegaMax;
-import Agent.Random;
-import Library.Enum.Color;
-import Graphics.Component.Scoreboard;
-import Graphics.Component.TurnInformation;
-import Graphics.Hexagon.HexBoard;
-import Library.Config;
-import Library.Model.Player;
+import Omega.Agent.*;
+import Omega.Agent.Random;
+import Omega.Agent.TranspositionTable.TableItem;
+import Omega.Agent.TranspositionTable.TranspositionTable;
+import Omega.Library.Enum.Color;
+import Omega.Graphics.Component.Scoreboard;
+import Omega.Graphics.Component.TurnInformation;
+import Omega.Graphics.Hexagon.HexBoard;
+import Omega.Library.Config;
+import Omega.Library.Enum.Flag;
+import Omega.Library.Model.Player;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXSlider;
@@ -237,6 +234,10 @@ public class Controller implements Initializable {
             reloadScoreboard();
         }
 
+        TranspositionTable tt = new TranspositionTable(board.getGameState());
+        tt.store(board.getGameState(), new TableItem(69, board.getGameState(), (short) 2, Flag.EXACT));
+        TableItem t = tt.get(board.getGameState());
+
         // Check game termination
         if (players[currentTurnPlayerId].getColor() == Color.WHITE && board.numEmptySpaces() < Math.pow(Config.NUM_PLAYERS, Config.NUM_PLAYERS)) {
             showEndGameDialog();
@@ -271,9 +272,9 @@ public class Controller implements Initializable {
      */
     private void updatePlayerSelectionGFX() {
         polyP1.getChildren().clear();
-        polyP1.getChildren().add(Graphics.Hexagon.Polygon.getPolygon(players[0].getColor(), 1.5));
+        polyP1.getChildren().add(Omega.Graphics.Hexagon.Polygon.getPolygon(players[0].getColor(), 1.5));
         polyP2.getChildren().clear();
-        polyP2.getChildren().add(Graphics.Hexagon.Polygon.getPolygon(players[1].getColor(), 1.5));
+        polyP2.getChildren().add(Omega.Graphics.Hexagon.Polygon.getPolygon(players[1].getColor(), 1.5));
         reloadScoreboard();
     }
 
@@ -364,7 +365,7 @@ public class Controller implements Initializable {
     }
     private void resetBoard(int size) {
         board = new HexBoard(size, this);
-        board.setHexCellHandler(new Graphics.Hexagon.Polygon());
+        board.setHexCellHandler(new Omega.Graphics.Hexagon.Polygon());
         board.setDimensions(
                 (int) (root.getWidth()-Math.max(playerContainer.getWidth(), WIDTH_PLAYERS)),
                 (int) (currentPlayerArea.getHeight() > 0 ? root.getHeight() - currentPlayerArea.getHeight() : root.getHeight()));

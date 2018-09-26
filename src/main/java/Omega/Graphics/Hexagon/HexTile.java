@@ -1,6 +1,6 @@
-package Graphics.Hexagon;
+package Omega.Graphics.Hexagon;
 
-import Library.Enum.Color;
+import Omega.Library.Enum.Color;
 
 /**
  * Inspired by: https://gist.github.com/Akjir/5721503

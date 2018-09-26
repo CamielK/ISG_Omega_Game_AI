@@ -1,6 +1,6 @@
-package Graphics.Hexagon;
+package Omega.Graphics.Hexagon;
 
-import Library.Enum.Color;
+import Omega.Library.Enum.Color;
 import javafx.scene.effect.DropShadow;
 
 public class Polygon {

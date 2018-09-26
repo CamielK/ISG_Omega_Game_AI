@@ -1,7 +1,7 @@
-package Graphics.Component;
+package Omega.Graphics.Component;
 
-import Graphics.Controller;
-import Library.Config;
+import Omega.Graphics.Controller;
+import Omega.Library.Config;
 import com.jfoenix.controls.JFXButton;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
@@ -38,7 +38,7 @@ public class TurnInformation {
             HBox tilesCollection = new HBox(20);
             tilesCollection.setAlignment(Pos.CENTER);
             for (int i=0; i < parent.currentTurnTilesLeft; i++) {
-                Polygon tile = Graphics.Hexagon.Polygon.getPolygon(parent.colors[i], 1.3);
+                Polygon tile = Omega.Graphics.Hexagon.Polygon.getPolygon(parent.colors[i], 1.3);
                 tilesCollection.getChildren().add(tile);
             }
             tilesContainer.getChildren().addAll(new Label("Tiles left in this turn: " + parent.currentTurnTilesLeft), tilesCollection);

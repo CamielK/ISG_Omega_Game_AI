@@ -1,9 +1,9 @@
-package Library.Model;
+package Omega.Library.Model;
 
-import Agent.Agent;
-import Agent.Human;
-import Library.Enum.Color;
-import Graphics.Hexagon.HexBoard;
+import Omega.Agent.Agent;
+import Omega.Agent.Human;
+import Omega.Library.Enum.Color;
+import Omega.Graphics.Hexagon.HexBoard;
 
 public class Player {
 

@@ -1,4 +1,4 @@
-package Library.Enum;
+package Omega.Library.Enum;
 
 public enum Flag {
     LOWER_BOUND,

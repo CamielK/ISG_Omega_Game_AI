@@ -1,9 +1,8 @@
-package Graphics.Hexagon;
+package Omega.Graphics.Hexagon;
 
 
 import java.awt.*;
 import java.awt.Polygon;
-import java.util.ArrayList;
 
 public class HexMetrics {
 

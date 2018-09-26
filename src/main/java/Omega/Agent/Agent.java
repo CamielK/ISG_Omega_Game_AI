@@ -1,10 +1,10 @@
-package Agent;
+package Omega.Agent;
 
-import Library.Enum.Color;
-import Graphics.Hexagon.HexBoard;
-import Graphics.Hexagon.HexTile;
-import Library.Helper;
-import Library.Model.Player;
+import Omega.Library.Enum.Color;
+import Omega.Graphics.Hexagon.HexBoard;
+import Omega.Graphics.Hexagon.HexTile;
+import Omega.Library.Helper;
+import Omega.Library.Model.Player;
 
 import java.util.ArrayList;
 import java.util.List;

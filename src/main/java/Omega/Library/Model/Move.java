@@ -1,6 +1,6 @@
-package Library.Model;
+package Omega.Library.Model;
 
-import Graphics.Hexagon.HexTile;
+import Omega.Graphics.Hexagon.HexTile;
 
 public class Move {
 

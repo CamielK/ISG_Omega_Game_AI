@@ -1,14 +1,16 @@
-package Agent;
+package Omega.Agent;
 
-import Graphics.Hexagon.HexBoard;
-import Graphics.Hexagon.HexTile;
-import Library.Enum.Color;
-import Library.Model.Move;
-import Library.Model.Player;
+import Omega.Agent.TranspositionTable.TableItem;
+import Omega.Agent.TranspositionTable.TranspositionTable;
+import Omega.Graphics.Hexagon.HexBoard;
+import Omega.Graphics.Hexagon.HexTile;
+import Omega.Library.Enum.Color;
+import Omega.Library.Enum.Flag;
+import Omega.Library.Model.Move;
+import Omega.Library.Model.Player;
 import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import javafx.concurrent.Worker;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -17,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Iterative deepening using negamax formulation and alpha-beta pruning
  */
-public class IterativeDeepening implements Agent {
+public class IterativeDeepeningTT implements Agent {
 
     private final int maxSearchTime = 2*60;
 //    private final int maxSearchTime = 1*30;
@@ -25,17 +27,20 @@ public class IterativeDeepening implements Agent {
     private HexBoard board;
     private Player parent;
     private Color[] tilesToPlace;
+    private TranspositionTable tt = null;
 
     public void GetMove(Player parent, HexBoard board, Color[] tilesToPlace) {
         this.board = board;
         this.parent = parent;
         this.tilesToPlace = tilesToPlace;
+        if (tt == null) tt = new TranspositionTable(board.getGameState());
 
         long startTime = System.nanoTime();
         int maxDepth = GetMaxGameDepth(board, parent);
         final int[] maxDepthReached = {0};
         final Move[] best = {new Move(Integer.MIN_VALUE, null)};
         System.out.println("Starting ID search with a max possible depth of " + maxDepth + " and a timeout of " + maxSearchTime + " seconds.");
+        maxDepth = 5;
         for (int depth = 1; depth <= maxDepth; depth++) {
             try {
                 long secondsLeft = maxSearchTime - ((System.nanoTime() - startTime) / 1000000000);
@@ -54,7 +59,8 @@ public class IterativeDeepening implements Agent {
                             @Override
                             protected Void call(){
                                 try {
-                                    Move move = ID(board.getGameState(), finalDepth, Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
+                                    Move move = ID(board.getGameState(), 3, Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
+//                                    Move move = ID(board.getGameState(), finalDepth, Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
                                     best[0] = move;
                                     maxDepthReached[0] = finalDepth;
                                 } catch (InterruptedException e) {
@@ -109,6 +115,26 @@ public class IterativeDeepening implements Agent {
             throw new InterruptedException();
         }
 
+        // Check transposition table
+        double olda = alpha;
+        boolean useBestMove = false;
+        TableItem n = tt.get(node);
+        if (n != null && n.depth >= depth) {
+            if (n.flag == Flag.EXACT) {
+                return new Move(n.value, node);
+            } else if (n.flag == Flag.LOWER_BOUND) {
+                alpha = Math.max(alpha, n.value);
+            } else if (n.flag == Flag.UPPER_BOUND) {
+                beta = Math.min(beta, n.value);
+            }
+            if (alpha >= beta) {
+                return new Move(n.value, node);
+            }
+
+            // move ordering: check best move first
+            useBestMove = true;
+        }
+
         // Check for leaf nodes
         boolean terminal = false;
         List<HexTile[][]> children = null;
@@ -121,14 +147,32 @@ public class IterativeDeepening implements Agent {
             return new Move(color * this.EvaluateNode(node, board, parent), node);
         }
 
+        // Iterate children
+        if (useBestMove) children.add(0, n.bestMove);
         Move value = new Move(Integer.MIN_VALUE, null);
+        HexTile[][] bestMove = null;
         for (HexTile[][] child : children) {
             Move value_child = ID(child, depth - 1, -beta, -alpha, -color); // Swap alpha/beta and negate
             value_child.score = -value_child.score; // Negate
-            if (value_child.score > value.score) value = value_child;
+            if (value_child.score > value.score) {
+                value = value_child;
+                bestMove = child;
+            }
             if (value_child.score > alpha) alpha = value.score;
             if (alpha >= beta) break;
         }
+
+        // Transposition table storing
+        TableItem item = new TableItem((int) value.score, bestMove, (short) depth, null);
+        if (value.score <= olda) {
+            item.flag = Flag.UPPER_BOUND;
+        } else if (value.score >= beta) {
+            item.flag = Flag.LOWER_BOUND;
+        } else {
+            item.flag = Flag.EXACT;
+        }
+        tt.store(value.board, item);
+
         return value;
     }
 }
