@@ -1,6 +1,5 @@
 package Omega.Agent.TranspositionTable;
 
-import Omega.Agent.TranspositionTable.TableItem;
 import Omega.Graphics.Hexagon.HexTile;
 import Omega.Library.Config;
 import Omega.Library.Model.Move;
@@ -12,16 +11,24 @@ public class TranspositionTable {
 
     private static Map<Long, TableItem> hashTable = new HashMap<>();
     private static long[][][] encodings;
+    private static int boardSize = 0;
 
     /**
      * Initialize the transposition table
      */
     public TranspositionTable(HexTile[][] board) {
+        if (boardSize != board.length) {
+            // Detect a new game with a different board size: reset all
+            encodings = null;
+            hashTable = new HashMap<>();
+            boardSize = board.length;
+        }
+
         // Randomly initialize the encodings for each tile and state
         if (encodings == null) {
-            encodings = new long[board.length][board.length][Config.COLORS_IN_PLAY.length];
-            for (int q = 0; q < board.length; q++) {
-                for (int r = 0; r < board.length; r++) {
+            encodings = new long[boardSize][boardSize][Config.COLORS_IN_PLAY.length];
+            for (int q = 0; q < boardSize; q++) {
+                for (int r = 0; r < boardSize; r++) {
                     if (board[q][r] != null) {
                         for (int c = 0; c < Config.COLORS_IN_PLAY.length; c++) {
                             encodings[q][r][c] = new java.util.Random().nextLong() & Long.MAX_VALUE; // duplicate random generation is ignored
@@ -45,7 +52,8 @@ public class TranspositionTable {
      */
     public void store(HexTile[][] board, TableItem item) {
         long hash = zobristHash(board);
-        hashTable.put(hash, item);
+        TableItem old = hashTable.put(hash, item);
+        int t=2;
     }
 
     /**
@@ -71,6 +79,10 @@ public class TranspositionTable {
         }
 
         return hash;
+    }
+
+    public long getSize() {
+        return hashTable.size();
     }
 
     /**

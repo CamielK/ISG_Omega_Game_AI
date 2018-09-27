@@ -6,6 +6,7 @@ import Omega.Graphics.Hexagon.HexBoard;
 import Omega.Graphics.Hexagon.HexTile;
 import Omega.Library.Enum.Color;
 import Omega.Library.Enum.Flag;
+import Omega.Library.Helper;
 import Omega.Library.Model.Move;
 import Omega.Library.Model.Player;
 import javafx.application.Platform;
@@ -21,9 +22,15 @@ import java.util.concurrent.TimeUnit;
  */
 public class IterativeDeepeningTT implements Agent {
 
-    private final int maxSearchTime = 2*60;
-//    private final int maxSearchTime = 1*30;
+//    private final int maxSearchTime = 2*60;
+    private final int maxSearchTime = 1*20;
+//    private final int maxSearchTime = 10*60;
 
+    private static int countNodes = 0;
+    private static int countNodesEvaluated = 0;
+    private static int countTTUsed = 0;
+    private static int countTTStored = 0;
+    private static int countPruned = 0;
     private HexBoard board;
     private Player parent;
     private Color[] tilesToPlace;
@@ -40,8 +47,12 @@ public class IterativeDeepeningTT implements Agent {
         final int[] maxDepthReached = {0};
         final Move[] best = {new Move(Integer.MIN_VALUE, null)};
         System.out.println("Starting ID search with a max possible depth of " + maxDepth + " and a timeout of " + maxSearchTime + " seconds.");
-        maxDepth = 5;
         for (int depth = 1; depth <= maxDepth; depth++) {
+            countNodes = 0;
+            countNodesEvaluated = 0;
+            countTTUsed = 0;
+            countTTStored = 0;
+            countPruned = 0;
             try {
                 long secondsLeft = maxSearchTime - ((System.nanoTime() - startTime) / 1000000000);
                 if (secondsLeft <= 0) {
@@ -59,15 +70,18 @@ public class IterativeDeepeningTT implements Agent {
                             @Override
                             protected Void call(){
                                 try {
-                                    Move move = ID(board.getGameState(), 3, Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
-//                                    Move move = ID(board.getGameState(), finalDepth, Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
+                                    Move move = ID(board.getGameState(), finalDepth, Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
                                     best[0] = move;
                                     maxDepthReached[0] = finalDepth;
+                                    System.out.println("Nodes: " + countNodes + ", Nodes evaluated: " + countNodesEvaluated + ", RetrievedTT: " + countTTUsed + ", StoredTT: " + countTTStored + ", Pruned: " + countPruned + ", Tt size: " + tt.getSize());
+                                    System.out.println("Finished depth " + finalDepth + " with score " + best[0].score);
                                 } catch (InterruptedException e) {
                                     System.out.println("ID timeout at depth " + finalDepth);
                                     maxDepthReached[0] = finalDepth-1;
                                     this.cancel();
                                     return null;
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 } finally {
                                     latch.countDown();
                                     return null;
@@ -79,11 +93,12 @@ public class IterativeDeepeningTT implements Agent {
                 service.start();
                 latch.await(secondsLeft, TimeUnit.SECONDS);
                 Platform.runLater(service::cancel);
-                System.out.println("Finished depth " + depth + " with score " + best[0].score);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
+        // Wait for iterative deepening to reach its max depth or until a timeout is called
         while (maxDepthReached[0] <= 0) {
             try {
                 TimeUnit.MILLISECONDS.sleep(200);
@@ -93,12 +108,26 @@ public class IterativeDeepeningTT implements Agent {
         }
         System.out.println("IterativeDeepening found score: " + best[0].score + ", max depth reached: " + maxDepthReached[0]);
 
-        // Get the first 2 tiles placed by the minmax algorithm
-        for (int q = 0; q < best[0].board.length; q++) {
-            for (int r = 0; r < best[0].board.length; r++) {
-                HexTile tile = best[0].board[q][r];
-                if (tile != null && tile.getPlacedId() == maxDepthReached[0]) {
-                    board.getGameState()[q][r].setColor(tile.getColor());
+        // Get the first 2 unplaced tiles placed by the algorithm and place them on the real board
+        HexTile[][] realBoard = board.getGameState();
+        boolean placedWhite = false;
+        boolean placedBlack = false;
+        for (int i = 0; i < maxDepth; i++) {
+            for (int q = 0; q < best[0].board.length; q++) {
+                for (int r = 0; r < best[0].board.length; r++) {
+                    HexTile tile = best[0].board[q][r];
+                    if (tile != null && tile.getPlacedId() == i && realBoard[q][r].getColor() == Color.EMPTY) {
+                        if (tile.getColor() == Color.WHITE) {
+                            if (!placedWhite) realBoard[q][r].setColor(tile.getColor());
+                            placedWhite = true;
+                        } else {
+                            if (!placedBlack) realBoard[q][r].setColor(tile.getColor());
+                            placedBlack = true;
+                        }
+                        if (placedBlack && placedWhite) {
+                            i = maxDepth;
+                        }
+                    }
                 }
             }
         }
@@ -119,20 +148,25 @@ public class IterativeDeepeningTT implements Agent {
         double olda = alpha;
         boolean useBestMove = false;
         TableItem n = tt.get(node);
-        if (n != null && n.depth >= depth) {
-            if (n.flag == Flag.EXACT) {
-                return new Move(n.value, node);
-            } else if (n.flag == Flag.LOWER_BOUND) {
-                alpha = Math.max(alpha, n.value);
-            } else if (n.flag == Flag.UPPER_BOUND) {
-                beta = Math.min(beta, n.value);
+        if (n != null) {
+            countTTUsed++;
+            if (n.depth >= depth) {
+                // Check flag and value of retrieved node
+                if (n.flag == Flag.EXACT) {
+                    return new Move(n.value, n.bestMove);
+                } else if (n.flag == Flag.LOWER_BOUND) {
+                    alpha = Math.max(alpha, n.value);
+                } else if (n.flag == Flag.UPPER_BOUND) {
+                    beta = Math.min(beta, n.value);
+                }
+                if (alpha >= beta) {
+                    return new Move(n.value, n.bestMove);
+                }
+            } else {
+                // Current depth > retrieved depth: we should explore the node deeper
+                // Apply move ordering with the retrieved best move to start exploring deeper
+                useBestMove = true;
             }
-            if (alpha >= beta) {
-                return new Move(n.value, node);
-            }
-
-            // move ordering: check best move first
-            useBestMove = true;
         }
 
         // Check for leaf nodes
@@ -144,26 +178,29 @@ public class IterativeDeepeningTT implements Agent {
         }
         int minChildrenRequired = (parent.getColor() == Color.WHITE ? 4*3 : 2); // Calculate end game requirement for 2 players
         if (terminal || children.size() <= minChildrenRequired) {
+            countNodesEvaluated++;
             return new Move(color * this.EvaluateNode(node, board, parent), node);
         }
 
         // Iterate children
-        if (useBestMove) children.add(0, n.bestMove);
+        countNodes++;
+        if (useBestMove) children.add(0, Helper.getGameStateDeepCopy(n.bestMove, false)); // Apply move ordering when possible
         Move value = new Move(Integer.MIN_VALUE, null);
-        HexTile[][] bestMove = null;
         for (HexTile[][] child : children) {
             Move value_child = ID(child, depth - 1, -beta, -alpha, -color); // Swap alpha/beta and negate
             value_child.score = -value_child.score; // Negate
             if (value_child.score > value.score) {
                 value = value_child;
-                bestMove = child;
+                if (value.score > alpha) alpha = value.score;
+                if (value.score >= beta) {
+                    countPruned++;
+                    break;
+                }
             }
-            if (value_child.score > alpha) alpha = value.score;
-            if (alpha >= beta) break;
         }
 
         // Transposition table storing
-        TableItem item = new TableItem((int) value.score, bestMove, (short) depth, null);
+        TableItem item = new TableItem((int) value.score, value.board, (short) depth, null);
         if (value.score <= olda) {
             item.flag = Flag.UPPER_BOUND;
         } else if (value.score >= beta) {
@@ -171,7 +208,8 @@ public class IterativeDeepeningTT implements Agent {
         } else {
             item.flag = Flag.EXACT;
         }
-        tt.store(value.board, item);
+        tt.store(node, item);
+        countTTStored++;
 
         return value;
     }

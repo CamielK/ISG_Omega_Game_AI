@@ -51,6 +51,7 @@ public class NegaMax implements Agent {
         }
         int minChildrenRequired = (parent.getColor() == Color.WHITE ? 4*3 : 2); // Calculate end game requirement for 2 players
         if (terminal || children.size() <= minChildrenRequired) {
+//            return new Move(color * this.EvaluateNode(node, board, parent), node);
             return new Move(color * this.EvaluateNode(node, board, parent), node);
         }
 

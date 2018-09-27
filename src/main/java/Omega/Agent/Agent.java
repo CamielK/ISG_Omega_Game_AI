@@ -35,8 +35,8 @@ public interface Agent {
         // 3. Num disjoint groups
         int ownScore = player1Scores[0] * player1Scores[1];
         int oppScore = player2Scores[0] * player2Scores[1];
-//        return ownScore+(ownScore-oppScore); // own score + diff
-        return ownScore * (10-player2Scores[1]); // emphasize low number of opponent groups
+        return ownScore+(ownScore-oppScore); // own score + diff
+//        return ownScore * (10-player2Scores[1]); // emphasize low number of opponent groups
 
         //TODO: expand eval func
         // - num disjoint groups (higher is better)
@@ -75,6 +75,16 @@ public interface Agent {
         // Get all legal positions for this node
         List<HexTile> possibleMoves = GetPossibleMoves(node);
 
+        // Check placement level
+        int placed = 0;
+        for (int q = 0; q < node.length; q++) {
+            for (int r = 0; r < node.length; r++) {
+                if (node[q][r] != null && node[q][r].getPlacedId() > placed) {
+                    placed = node[q][r].getPlacedId();
+                }
+            }
+        }
+
         // Return each combination of possible positions
         // A node will generate n*(n-1) children where n is the number of empty tiles in the node
         for (int x = 0; x < possibleMoves.size(); x++) {
@@ -85,11 +95,13 @@ public interface Agent {
                     HexTile[][] board = Helper.getGameStateDeepCopy(node, false);
                     // Place first tile
                     board[tile.getQ()][tile.getR()].setColor(tilesToPlace[0]);
-                    board[tile.getQ()][tile.getR()].setPlacedId(depth);
+//                    board[tile.getQ()][tile.getR()].setPlacedId(depth);
+                    board[tile.getQ()][tile.getR()].setPlacedId(placed+1);
                     board[tile.getQ()][tile.getR()].setPlacedBy(isMaximizing?"MAX":"MIN");
                     // Place second tile
                     board[tile2.getQ()][tile2.getR()].setColor(tilesToPlace[1]);
-                    board[tile2.getQ()][tile2.getR()].setPlacedId(depth);
+//                    board[tile2.getQ()][tile2.getR()].setPlacedId(depth);
+                    board[tile2.getQ()][tile2.getR()].setPlacedId(placed+1);
                     board[tile2.getQ()][tile2.getR()].setPlacedBy(isMaximizing?"MAX":"MIN");
                     children.add(board);
                 }
@@ -103,7 +115,7 @@ public interface Agent {
      */
     default int GetMaxGameDepth(HexBoard board, Player parent) {
         int emptyTiles = board.numEmptySpaces();
-        if (parent.getColor() != Color.WHITE) emptyTiles -= 2;
+        if (parent.getColor() == Color.WHITE) emptyTiles -= 2;
         int maxDepth = (int) Math.floor(emptyTiles/2);
         return maxDepth;
     }

@@ -234,10 +234,6 @@ public class Controller implements Initializable {
             reloadScoreboard();
         }
 
-        TranspositionTable tt = new TranspositionTable(board.getGameState());
-        tt.store(board.getGameState(), new TableItem(69, board.getGameState(), (short) 2, Flag.EXACT));
-        TableItem t = tt.get(board.getGameState());
-
         // Check game termination
         if (players[currentTurnPlayerId].getColor() == Color.WHITE && board.numEmptySpaces() < Math.pow(Config.NUM_PLAYERS, Config.NUM_PLAYERS)) {
             showEndGameDialog();
