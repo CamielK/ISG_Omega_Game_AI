@@ -70,7 +70,7 @@ public class IterativeDeepeningTT implements Agent {
                             @Override
                             protected Void call(){
                                 try {
-                                    Move move = ID(board.getGameState(), finalDepth, Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
+                                    Move move = ID(board.getGameState(), finalDepth, Integer.MIN_VALUE, Integer.MAX_VALUE, 1, finalDepth);
                                     best[0] = move;
                                     maxDepthReached[0] = finalDepth;
                                     System.out.println("Nodes: " + countNodes + ", Nodes evaluated: " + countNodesEvaluated + ", RetrievedTT: " + countTTUsed + ", StoredTT: " + countTTStored + ", Pruned: " + countPruned + ", Tt size: " + tt.getSize());
@@ -139,7 +139,7 @@ public class IterativeDeepeningTT implements Agent {
     /**
      * Returns the best possible board configuration (according to negamax with alpha-beta pruning)
      */
-    private Move ID(HexTile[][] node, int depth, double alpha, double beta, int color) throws InterruptedException {
+    private Move ID(HexTile[][] node, int depth, double alpha, double beta, int color, int maxDepth) throws InterruptedException {
         if (Thread.currentThread().isInterrupted()) {
             throw new InterruptedException();
         }
@@ -174,7 +174,7 @@ public class IterativeDeepeningTT implements Agent {
         List<HexTile[][]> children = null;
         if (depth <= 0) terminal = true;
         else {
-            children = this.GenerateChildren(node, tilesToPlace, depth, color == 1);
+            children = this.GenerateChildren(node, tilesToPlace, depth, color == 1, maxDepth);
         }
         int minChildrenRequired = (parent.getColor() == Color.WHITE ? 4*3 : 2); // Calculate end game requirement for 2 players
         if (terminal || children.size() <= minChildrenRequired) {
@@ -184,10 +184,13 @@ public class IterativeDeepeningTT implements Agent {
 
         // Iterate children
         countNodes++;
-        if (useBestMove) children.add(0, Helper.getGameStateDeepCopy(n.bestMove, false)); // Apply move ordering when possible
+        if (useBestMove)  {
+            children.add(0, Helper.getGameStateDeepCopy(n.bestMove, false)); // Apply move ordering when possible
+        }
         Move value = new Move(Integer.MIN_VALUE, null);
-        for (HexTile[][] child : children) {
-            Move value_child = ID(child, depth - 1, -beta, -alpha, -color); // Swap alpha/beta and negate
+        for (int i = 0; i < children.size(); i++) {
+            HexTile[][] child = children.get(i);
+            Move value_child = ID(child, depth - 1, -beta, -alpha, -color, maxDepth); // Swap alpha/beta and negate
             value_child.score = -value_child.score; // Negate
             if (value_child.score > value.score) {
                 value = value_child;

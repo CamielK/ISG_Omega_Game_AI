@@ -70,6 +70,9 @@ public interface Agent {
      * @return list of all legal children (size = n*(n-1), where n is the number of empty tiles in the given node)
      */
     default List<HexTile[][]> GenerateChildren(HexTile[][] node, Color[] tilesToPlace, int depth, boolean isMaximizing) {
+        return GenerateChildren(node, tilesToPlace, depth, isMaximizing, Integer.MAX_VALUE);
+    }
+    default List<HexTile[][]> GenerateChildren(HexTile[][] node, Color[] tilesToPlace, int depth, boolean isMaximizing, int maxDepth) {
         List<HexTile[][]> children = new ArrayList<>();
 
         // Get all legal positions for this node
@@ -80,13 +83,23 @@ public interface Agent {
         for (int q = 0; q < node.length; q++) {
             for (int r = 0; r < node.length; r++) {
                 if (node[q][r] != null && node[q][r].getPlacedId() > placed) {
-                    placed = node[q][r].getPlacedId();
+                    if (placed < maxDepth) {
+                        placed = node[q][r].getPlacedId();
+                    } else {
+                        node[q][r].setPlacedBy("");
+                        node[q][r].setPlacedId(-1);
+                        node[q][r].setGroup(0);
+                        node[q][r].setColor(Color.EMPTY);
+                    }
                 }
             }
         }
 
         // Return each combination of possible positions
         // A node will generate n*(n-1) children where n is the number of empty tiles in the node
+        if (placed >= 6){
+            System.out.println(Integer.toString(placed) + " - " + Integer.toString(maxDepth));
+        }
         for (int x = 0; x < possibleMoves.size(); x++) {
             for (int y = 0; y < possibleMoves.size(); y++) {
                 HexTile tile = possibleMoves.get(x);
