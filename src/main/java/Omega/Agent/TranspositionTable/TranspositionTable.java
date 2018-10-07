@@ -66,7 +66,7 @@ public class TranspositionTable {
     /**
      * Use Zobrist hashing to encode the position
      */
-    private long zobristHash(HexTile[][] board) {
+    public long zobristHash(HexTile[][] board) {
         long hash = 0;
 
         for (int q = 0; q < board.length; q++) {

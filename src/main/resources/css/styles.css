@@ -100,6 +100,7 @@ JFXButton:hover {
 }
 .board-container {
     -fx-background-color: #ECF0F1;
+    /*-fx-background-color: #fff;*/
     -fx-border-color: #c4c8c9;
     -fx-border-width: 0 1 1 0;
 }

@@ -13,15 +13,18 @@ import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Iterative deepening using negamax formulation and alpha-beta pruning
  * Using TranspositionTable to store and retrieve known nodes
+ * Uses move ordering when generating children
  */
-public class IterativeDeepeningTT implements Agent {
+public class ID_TT_MoveOrdering implements Agent {
 
 //    private final int maxSearchTime = 2*60;
     private final int maxSearchTime = 1*20;
@@ -175,12 +178,13 @@ public class IterativeDeepeningTT implements Agent {
         List<HexTile[][]> children = null;
         if (depth <= 0) terminal = true;
         else {
-            children = this.GenerateChildren(node, tilesToPlace, depth, color == 1, maxDepth);
+//            children = this.GenerateChildren(node, tilesToPlace, depth, color == 1, maxDepth);
+            children = this.GenerateChildrenWithMoveOrdering(board, parent.getColor(), node, tilesToPlace, depth, color == 1, maxDepth);
         }
         int minChildrenRequired = (parent.getColor() == Color.WHITE ? 4*3 : 2); // Calculate end game requirement for 2 players
         if (terminal || children.size() <= minChildrenRequired) {
             countNodesEvaluated++;
-            return new Move(color * this.EvaluateNode(node, board, parent), node);
+            return new Move(color * this.EvaluateNode(node, board, parent, true), node);
         }
 
         // Iterate children

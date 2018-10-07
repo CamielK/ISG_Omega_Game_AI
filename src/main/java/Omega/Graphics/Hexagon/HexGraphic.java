@@ -3,6 +3,7 @@ package Omega.Graphics.Hexagon;
 import Omega.Library.Config;
 import javafx.scene.canvas.GraphicsContext;
 import Omega.Library.Enum.Color;
+import javafx.scene.text.Font;
 
 
 /**
@@ -58,6 +59,7 @@ public class HexGraphic {
         }
         if (Config.GFX_AXES_ENABLED) {
             yOffset+=15;
+//            context.setFont(new Font(24));
             context.fillText(Integer.toString(tile.getQ()) + "," + Integer.toString(tile.getR()), cX[5]+10, cY[5]+yOffset);
         }
         if (Config.GFX_PLACED_ENABLED && tile.getPlacedId() != -1) {

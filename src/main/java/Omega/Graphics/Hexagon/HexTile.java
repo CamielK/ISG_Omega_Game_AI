@@ -9,8 +9,8 @@ public class HexTile {
 
     private int q;
     private int r;
-    private double[] cornersX = new double[6];
-    private double[] cornersY = new double[6];
+    private double[] cornersX;
+    private double[] cornersY;
     private Color color = Color.EMPTY;
     private int group = 0;
     private int placedId = -1; // Turn (or search depth) at which this tile was placed, used for debugging

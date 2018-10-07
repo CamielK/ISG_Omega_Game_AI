@@ -87,9 +87,9 @@ public class HexBoard extends Canvas {
      * Returns the game evaluation for the given board
      * Scores are returned for each color
      * @param hexTiles board representation
-     * @return Map
+     * @return Map (for each color: [[eval_score, num_disjoint_groups],list_of_all_group_sizes])
      */
-    public Map<Color, Integer[]> evaluatePlayerScores(HexTile[][] hexTiles, boolean resetGroupIds) {
+    public Map<Color, Integer[][]> evaluatePlayerScores(HexTile[][] hexTiles, boolean resetGroupIds) {
         int axialSize = hexTiles.length;
 
         // Reset groups
@@ -103,15 +103,29 @@ public class HexBoard extends Canvas {
 
         // Update groups for all tiles
         int maxGroupId = 1;
-        Map<Color, Integer[]> colorScores = new HashMap<Color, Integer[]>();
+        Map<Color, Integer[][]> colorScores = new HashMap<Color, Integer[][]>();
         for (int q=0; q<axialSize; q++) {
             for (int r = 0; r < axialSize; r++) {
                 HexTile hexTile = hexTiles[q][r];
                 if (hexTile != null && hexTile.getColor() != Color.EMPTY && hexTile.getGroup() == 0) {
                     hexTile.setGroup(maxGroupId);
-                    int groupScore = updateNeighboursRecursively(hexTiles, q, r, maxGroupId);
-                    Integer[] scores = colorScores.getOrDefault(hexTile.getColor(), new Integer[]{1,0});
-                    colorScores.put(hexTile.getColor(), new Integer[]{scores[0]*groupScore, scores[1]+1});
+                    int[] groupScores = exploreGroupRecursively(hexTiles, q, r, maxGroupId, false);
+                    int groupScore = groupScores[0];
+
+                    // Save scores and increment
+                    Integer[][] scores = colorScores.getOrDefault(hexTile.getColor(), new Integer[][]{{1,0,0},{}});
+                    Integer[] groups = new Integer[scores[1].length+1];
+                    for (int i = 0; i < scores[1].length; i++) {
+                        groups[i] = scores[1][i];
+                    }
+                    groups[scores[1].length] = groupScore;
+                    colorScores.put(hexTile.getColor(), new Integer[][]{
+                            new Integer[]{
+                                    scores[0][0]*groupScore,   // Eval score
+                                    scores[0][1]+1             // Num disjoint groups
+                            },
+                            groups // All individual groups
+                    });
                     maxGroupId++;
                 }
             }
@@ -120,7 +134,12 @@ public class HexBoard extends Canvas {
         return colorScores;
     }
 
-    private int updateNeighboursRecursively(HexTile[][] hexTiles, int q, int r, int group) {
+    /**
+     * Recursively finds all members of the given group, starting in hexTiles[q][r]
+     * If checkMoveQuality is set to true, this method will also return some information about the properties of the center tile (used for move ordering).
+     * @return int[] {groupScore, isJoiningMove, isBarrierMove}
+     */
+    public int[] exploreGroupRecursively(HexTile[][] hexTiles, int q, int r, int group, boolean checkMoveQuality) {
         HexTile[] neighbours = new HexTile[]{
                 (q+1<axialSize              ? hexTiles[q+1][r]  : null),
                 (q-1>=0                     ? hexTiles[q-1][r]  : null),
@@ -129,14 +148,61 @@ public class HexBoard extends Canvas {
                 (r+1<axialSize              ? hexTiles[q][r+1]  : null),
                 (r-1>=0                     ? hexTiles[q][r-1]  : null),
         };
+
+        // Optional: Analyze properties of the center tile
+        int isJoiningMove = 0;
+        int isBarrierMove = 0;
+        if (checkMoveQuality) {
+            for (HexTile source : neighbours) {
+                if (source != null) {
+                    for (HexTile target : neighbours) {
+                        if (target != null && target != source && !isNeighbhour(source, target)) {
+                            if (source.getColor() == target.getColor() && source.getColor() == hexTiles[q][r].getColor()) {
+                                // player has joined 2 of his own groups by placing this tile: bad move!
+                                isJoiningMove = 1;
+                                break;
+                            } else if (source.getColor() == target.getColor() && source.getColor() != hexTiles[q][r].getColor() && source.getColor() != Color.EMPTY) {
+                                // player has blocked a joining position using the opponent color: good move! this creates a barrier between groups
+                                isBarrierMove = 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Recursively call all unexplored neighbours to find the total group size.
         int groupScore = 1;
         for (HexTile tile : neighbours) {
             if (tile != null && tile.getColor() == hexTiles[q][r].getColor() && tile.getGroup() <= 0) {
-                tile.setGroup(group);
-                groupScore += updateNeighboursRecursively(hexTiles, tile.getQ(), tile.getR(), group);
+                tile.setGroup(group); // setGroup to mark this tile as explored
+                groupScore += exploreGroupRecursively(hexTiles, tile.getQ(), tile.getR(), group, false)[0];
             }
         }
-        return groupScore;
+
+        // Result: [groupScore = total group size, isJoiningMove, isBarrierMove]
+        return new int[]{groupScore, (checkMoveQuality && isJoiningMove==1 ? 1 : 0 ), (checkMoveQuality && isBarrierMove==1 ? 1 : 0 )};
+    }
+
+    /**
+     * Returns true if the source and target tiles are direct neighbours
+     */
+    public boolean isNeighbhour(HexTile source, HexTile target) {
+        int q = source.getQ(); int r = source.getR();
+        HexTile[] neighbours = new HexTile[]{
+                (q+1<axialSize              ? hexTiles[q+1][r]  : null),
+                (q-1>=0                     ? hexTiles[q-1][r]  : null),
+                (q+1<axialSize && r-1>=0    ? hexTiles[q+1][r-1]: null),
+                (r+1<axialSize && q-1>=0    ? hexTiles[q-1][r+1]: null),
+                (r+1<axialSize              ? hexTiles[q][r+1]  : null),
+                (r-1>=0                     ? hexTiles[q][r-1]  : null),
+        };
+        for (HexTile tile : neighbours) {
+            if (tile != null && tile.getQ() == target.getQ() && tile.getR() == target.getR()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public int numEmptySpaces() {
@@ -183,10 +249,10 @@ public class HexBoard extends Canvas {
     }
 
     public void updateAll() {
-        Map<Color, Integer[]> colorScores = evaluatePlayerScores(hexTiles, true);
+        Map<Color, Integer[][]> colorScores = evaluatePlayerScores(hexTiles, true);
         for (Player player : parent.players) {
-            Integer[] playerScores = colorScores.getOrDefault(player.getColor(), new Integer[]{0,0});
-            player.setScore(playerScores[0]);
+            Integer[][] playerScores = colorScores.getOrDefault(player.getColor(), new Integer[][]{{0,0},{}});
+            player.setScore(playerScores[0][0]);
         }
         parent.reloadScoreboard();
         repaint();

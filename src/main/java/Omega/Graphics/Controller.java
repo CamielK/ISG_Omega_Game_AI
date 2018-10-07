@@ -138,6 +138,7 @@ public class Controller implements Initializable {
 
             JFXComboBox<Label> jfxCombo = new JFXComboBox<Label>();
             jfxCombo.getItems().add(new Label(Human.class.getName()));
+            jfxCombo.getItems().add(new Label(ID_TT_MoveOrdering.class.getName()));
             jfxCombo.getItems().add(new Label(IterativeDeepeningTT.class.getName()));
             jfxCombo.getItems().add(new Label(IterativeDeepening.class.getName()));
             jfxCombo.getItems().add(new Label(NegaMax.class.getName()));
