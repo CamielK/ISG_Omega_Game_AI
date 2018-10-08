@@ -1,6 +1,8 @@
 package Omega.Graphics.Hexagon;
 
 import Omega.Graphics.Controller;
+import Omega.Library.Config;
+import Omega.Library.Model.Evaluation;
 import Omega.Library.Model.Player;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
@@ -23,6 +25,7 @@ public class HexBoard extends Canvas {
     private HexMetrics metrics;
     private HexGraphic hexGraphic = new HexGraphic(getGraphicsContext2D());
 
+    private int maxScore;
     private int axialSize;
     private HexTile[][] hexTiles;
     private Controller parent;
@@ -44,10 +47,12 @@ public class HexBoard extends Canvas {
 
         // Initialize board pieces
         int offsetLimit = size - 1;
+        int totalTiles = 0;
         for (int q=0; q<axialSize; q++) {
             for (int r = 0; r < axialSize; r++) {
                 if (q+r >= offsetLimit && q+r <= (axialSize-1)*2-offsetLimit) {
                     hexTiles[q][r] = new HexTile(q, r);
+                    totalTiles++;
                 } else {
                     // The tile at this index is unused
                     hexTiles[q][r] = null;
@@ -55,12 +60,19 @@ public class HexBoard extends Canvas {
             }
         }
 
+        // Calculate max score
+        int maxTilesInUse = totalTiles - (totalTiles%((int) Math.pow(Config.NUM_PLAYERS, Config.NUM_PLAYERS)));
+        int tilesPerColor = maxTilesInUse / Config.NUM_PLAYERS;
+        maxScore = (int) Math.pow(3, (tilesPerColor-(tilesPerColor%3))/3) * Math.max(1, tilesPerColor%3);
+
         setOnMouseClicked(this::handleMouseClick);
     }
 
     private Polygon hexCellHandler = null;
     public Polygon getHexCellHandler() {return hexCellHandler;}
     public void setHexCellHandler(Polygon handler) {hexCellHandler = handler;}
+
+    public int getMaxScore() {return maxScore;}
 
     /**
      * Update board dimensions to best fit the container
@@ -87,9 +99,9 @@ public class HexBoard extends Canvas {
      * Returns the game evaluation for the given board
      * Scores are returned for each color
      * @param hexTiles board representation
-     * @return Map (for each color: [[eval_score, num_disjoint_groups],list_of_all_group_sizes])
+     * @return Map (for each color: Evaluation)
      */
-    public Map<Color, Integer[][]> evaluatePlayerScores(HexTile[][] hexTiles, boolean resetGroupIds) {
+    public Map<Color, Evaluation> evaluatePlayerScores(HexTile[][] hexTiles, boolean resetGroupIds) {
         int axialSize = hexTiles.length;
 
         // Reset groups
@@ -103,7 +115,7 @@ public class HexBoard extends Canvas {
 
         // Update groups for all tiles
         int maxGroupId = 1;
-        Map<Color, Integer[][]> colorScores = new HashMap<Color, Integer[][]>();
+        Map<Color, Evaluation> colorScores = new HashMap<>();
         for (int q=0; q<axialSize; q++) {
             for (int r = 0; r < axialSize; r++) {
                 HexTile hexTile = hexTiles[q][r];
@@ -113,19 +125,10 @@ public class HexBoard extends Canvas {
                     int groupScore = groupScores[0];
 
                     // Save scores and increment
-                    Integer[][] scores = colorScores.getOrDefault(hexTile.getColor(), new Integer[][]{{1,0,0},{}});
-                    Integer[] groups = new Integer[scores[1].length+1];
-                    for (int i = 0; i < scores[1].length; i++) {
-                        groups[i] = scores[1][i];
-                    }
-                    groups[scores[1].length] = groupScore;
-                    colorScores.put(hexTile.getColor(), new Integer[][]{
-                            new Integer[]{
-                                    scores[0][0]*groupScore,   // Eval score
-                                    scores[0][1]+1             // Num disjoint groups
-                            },
-                            groups // All individual groups
-                    });
+                    Evaluation scores = colorScores.getOrDefault(hexTile.getColor(), new Evaluation());
+                    scores.gameEvalScore*=groupScore;   // Multiply with new group
+                    scores.groupScores.add(groupScore); // Add group to list
+                    colorScores.put(hexTile.getColor(), scores);
                     maxGroupId++;
                 }
             }
@@ -249,10 +252,10 @@ public class HexBoard extends Canvas {
     }
 
     public void updateAll() {
-        Map<Color, Integer[][]> colorScores = evaluatePlayerScores(hexTiles, true);
+        Map<Color, Evaluation> colorScores = evaluatePlayerScores(hexTiles, true);
         for (Player player : parent.players) {
-            Integer[][] playerScores = colorScores.getOrDefault(player.getColor(), new Integer[][]{{0,0},{}});
-            player.setScore(playerScores[0][0]);
+            Evaluation playerScores = colorScores.getOrDefault(player.getColor(), new Evaluation());
+            player.setScore(playerScores.gameEvalScore);
         }
         parent.reloadScoreboard();
         repaint();

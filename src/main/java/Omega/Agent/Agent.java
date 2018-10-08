@@ -3,7 +3,9 @@ package Omega.Agent;
 import Omega.Library.Enum.Color;
 import Omega.Graphics.Hexagon.HexBoard;
 import Omega.Graphics.Hexagon.HexTile;
+import Omega.Library.Enum.Operator;
 import Omega.Library.Helper;
+import Omega.Library.Model.Evaluation;
 import Omega.Library.Model.Player;
 
 import java.util.ArrayList;
@@ -22,36 +24,30 @@ public interface Agent {
     }
     default int EvaluateNode(HexTile[][] node, HexBoard board, Player parent, boolean resetGroupIds) {
         // Get game evaluation
-        Map<Color, Integer[][]> colorScores = board.evaluatePlayerScores(node, resetGroupIds);
-        /*
-         * colorScores => (
-         *  WHITE => (
-         *      [totalScore, numDisjointGroups],
-         *      list_of_all_group_sizes
-         *  ),
-         *  BLACK => (
-         *      [totalScore, numDisjointGroups],
-         *      list_of_all_group_sizes
-         * )
-         */
-        Integer[][] player1Scores = colorScores.getOrDefault(parent.getColor(), new Integer[][]{{0,0},{}});
-        Integer[][] player2Scores = colorScores.getOrDefault((parent.getColor()==Color.WHITE?Color.BLACK:Color.WHITE), new Integer[][]{{0,0},{}});
+        Map<Color, Evaluation> colorScores = board.evaluatePlayerScores(node, resetGroupIds);
+        Evaluation EvaluationSelf = colorScores.getOrDefault(parent.getColor(), new Evaluation());
+        Evaluation EvaluationEnemy = colorScores.getOrDefault((parent.getColor()==Color.WHITE?Color.BLACK:Color.WHITE), new Evaluation());
 
         // 1. Return score of parent as eval result
-//        return player1Scores[0][0]; // game eval score for AI player
-//        return player1Scores[0][0] * player1Scores[0][1]; // game eval score * num disjoint groups
-        return player1Scores[0][0] * player1Scores[0][1]; // game eval score * num disjoint groups
+//        return EvaluationSelf.gameEvalScore; // game eval score for AI player
+//        return EvaluationSelf.gameEvalScore * EvaluationSelf.groupScores.size(); // game eval score * num disjoint groups
 
         // 2. Function of own score (higher is better) and opponent score (lower is better)
-//        int ownScore = player1Scores[0][0];
-//        int oppScore = player2Scores[0][0];
+//        int ownScore = EvaluationSelf.gameEvalScore;
+//        int oppScore = EvaluationEnemy.gameEvalScore;
 //        return ownScore+(ownScore-oppScore);
 
         // 3. Num disjoint groups
-//        int ownScore = player1Scores[0][0] * player1Scores[0][1];
-//        int oppScore = player2Scores[0][0] * player2Scores[0][1];
+//        int ownScore = EvaluationSelf.gameEvalScore * EvaluationSelf.groupScores.size();
+//        int oppScore = EvaluationEnemy.gameEvalScore * EvaluationEnemy.groupScores.size();
 //        return ownScore+(ownScore-oppScore); // own score + diff
-//        return ownScore * (10-player2Scores[0][1]); // emphasize low number of opponent groups
+//        return ownScore * (10-EvaluationEnemy.groupScores.size()); // emphasize low number of opponent groups
+
+        // Normalized using max score
+        int scoreSelfNormalized = (int) (((double) EvaluationSelf.gameEvalScore / (double) board.getMaxScore()) * 100);
+        int scoreEnemyNormalized = (int) (((double) EvaluationEnemy.gameEvalScore / (double) board.getMaxScore()) * 100);
+
+        return scoreSelfNormalized + EvaluationSelf.groupsWithSize(2, Operator.GREATER_OR_EQUAL)*3 + (scoreSelfNormalized-scoreEnemyNormalized*EvaluationEnemy.groupsWithSize(3, Operator.EQUAL));
 
         //TODO: expand eval func
         // - avg distance to other tiles (higher is better)
@@ -82,6 +78,7 @@ public interface Agent {
 
     /**
      * Generates a list of all legal children for the given game state
+     * Also keeps track of the search depth at which the tile was placed
      * @param node Board representation
      * @param tilesToPlace List of colors to be placed
      * @return list of all legal children (size = n*(n-1), where n is the number of empty tiles in the given node)
@@ -115,9 +112,6 @@ public interface Agent {
 
         // Return each combination of possible positions
         // A node will generate n*(n-1) children where n is the number of empty tiles in the node
-//        if (placed >= 6){
-//            System.out.println(Integer.toString(placed) + " - " + Integer.toString(maxDepth));
-//        }
         for (int x = 0; x < possibleMoves.size(); x++) {
             for (int y = 0; y < possibleMoves.size(); y++) {
                 HexTile tile = possibleMoves.get(x);
@@ -141,6 +135,9 @@ public interface Agent {
         return children;
     }
 
+    /**
+     * Generates children for the given node and analyzes the tiles that were placed to apply rule based move ordering depending on the quality of the child
+     */
     default List<HexTile[][]> GenerateChildrenWithMoveOrdering(HexBoard board, Color parentColor, HexTile[][] node, Color[] tilesToPlace, int depth, boolean isMaximizing, int maxDepth) {
         List<HexTile[][]> children = new ArrayList<>();
 
