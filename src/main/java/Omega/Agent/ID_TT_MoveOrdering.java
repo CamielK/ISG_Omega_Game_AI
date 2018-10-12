@@ -178,8 +178,10 @@ public class ID_TT_MoveOrdering implements Agent {
         List<HexTile[][]> children = null;
         if (depth <= 0) terminal = true;
         else {
-//            children = this.GenerateChildren(node, tilesToPlace, depth, color == 1, maxDepth);
-            children = this.GenerateChildrenWithMoveOrdering(board, parent.getColor(), node, tilesToPlace, depth, color == 1, maxDepth);
+//            long startTime2 = System.nanoTime();
+            children = this.GenerateChildren(node, tilesToPlace, depth, color == 1, maxDepth);
+//            children = this.GenerateChildrenWithMoveOrdering(board, parent.getColor(), node, tilesToPlace, depth, color == 1, maxDepth);
+//            System.out.println("children generation time: " + Integer.toString((int)(((System.nanoTime() - startTime2) / 1000))));
         }
         int minChildrenRequired = (parent.getColor() == Color.WHITE ? 4*3 : 2); // Calculate end game requirement for 2 players
         if (terminal || children.size() <= minChildrenRequired) {
