@@ -1,5 +1,6 @@
 package Omega.Agent;
 
+import Omega.Library.Config;
 import Omega.Library.Enum.Color;
 import Omega.Graphics.Hexagon.HexBoard;
 import Omega.Graphics.Hexagon.HexTile;
@@ -248,7 +249,7 @@ public interface Agent {
     default int GetMaxGameDepth(HexBoard board, Player parent) {
         int emptyTiles = board.numEmptySpaces();
         if (parent.getColor() == Color.WHITE) emptyTiles -= 2;
-        int maxDepth = (int) Math.floor(emptyTiles/2);
+        int maxDepth = (int) Math.floor(emptyTiles/Config.NUM_PLAYERS);
         return maxDepth;
     }
 }

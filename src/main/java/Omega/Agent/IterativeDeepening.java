@@ -18,9 +18,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class IterativeDeepening implements Agent {
 
-    private final int maxSearchTime = 2*60;
-//    private final int maxSearchTime = 1*30;
-
     private HexBoard board;
     private Player parent;
     private Color[] tilesToPlace;
@@ -29,6 +26,9 @@ public class IterativeDeepening implements Agent {
         this.board = board;
         this.parent = parent;
         this.tilesToPlace = tilesToPlace;
+
+        // Time management
+        int maxSearchTime = parent.getTotalTimeLeft() / parent.getTotalTurnsLeft();
 
         long startTime = System.nanoTime();
         int maxDepth = GetMaxGameDepth(board, parent);
@@ -95,6 +95,11 @@ public class IterativeDeepening implements Agent {
                 }
             }
         }
+
+        // Update used time
+        long secondsUsed = (System.nanoTime() - startTime) / 1000000000;
+        parent.setTotalTimeLeft((int) (parent.getTotalTimeLeft()-secondsUsed));
+        parent.setTotalTurnsLeft(parent.getTotalTurnsLeft()-1);
 
         // Store best board for debugging
         board.bestBoard = best[0].board;

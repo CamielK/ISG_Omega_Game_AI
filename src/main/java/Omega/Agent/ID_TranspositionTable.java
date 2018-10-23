@@ -18,14 +18,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Iterative deepening using negamax formulation and alpha-beta pruning
+ * ID: Iterative deepening using negamax formulation and alpha-beta pruning
  * Using TranspositionTable to store and retrieve known nodes
  */
-public class IterativeDeepeningTT implements Agent {
-
-//    private final int maxSearchTime = 2*60;
-    private final int maxSearchTime = 1*20;
-//    private final int maxSearchTime = 10*60;
+public class ID_TranspositionTable implements Agent {
 
     private static int countNodes = 0;
     private static int countNodesEvaluated = 0;
@@ -42,6 +38,9 @@ public class IterativeDeepeningTT implements Agent {
         this.parent = parent;
         this.tilesToPlace = tilesToPlace;
         if (tt == null) tt = new TranspositionTable(board.getGameState());
+
+        // Time management
+        int maxSearchTime = parent.getTotalTimeLeft() / parent.getTotalTurnsLeft();
 
         long startTime = System.nanoTime();
         int maxDepth = GetMaxGameDepth(board, parent);
@@ -132,6 +131,11 @@ public class IterativeDeepeningTT implements Agent {
                 }
             }
         }
+
+        // Update used time
+        long secondsUsed = (System.nanoTime() - startTime) / 1000000000;
+        parent.setTotalTimeLeft((int) (parent.getTotalTimeLeft()-secondsUsed));
+        parent.setTotalTurnsLeft(parent.getTotalTurnsLeft()-1);
 
         // Store best board for debugging
         board.bestBoard = best[0].board;

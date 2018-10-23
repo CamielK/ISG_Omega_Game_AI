@@ -2,15 +2,15 @@ package Omega.Graphics.Hexagon;
 
 import Omega.Graphics.Controller;
 import Omega.Library.Config;
+import Omega.Library.Enum.Color;
 import Omega.Library.Model.Evaluation;
 import Omega.Library.Model.Player;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import Omega.Library.Enum.Color;
 
 /**
  * Inspired by: https://gist.github.com/Akjir/5721503, https://www.redblobgames.com/grids/hexagons/
@@ -26,6 +26,7 @@ public class HexBoard extends Canvas {
     private HexGraphic hexGraphic = new HexGraphic(getGraphicsContext2D());
 
     private int maxScore;
+    private int maxTurns;
     private int axialSize;
     private HexTile[][] hexTiles;
     private Controller parent;
@@ -63,6 +64,7 @@ public class HexBoard extends Canvas {
         // Calculate max score
         int maxTilesInUse = totalTiles - (totalTiles%((int) Math.pow(Config.NUM_PLAYERS, Config.NUM_PLAYERS)));
         int tilesPerColor = maxTilesInUse / Config.NUM_PLAYERS;
+        maxTurns = tilesPerColor / Config.NUM_PLAYERS;
         maxScore = (int) Math.pow(3, (tilesPerColor-(tilesPerColor%3))/3) * Math.max(1, tilesPerColor%3);
 
         setOnMouseClicked(this::handleMouseClick);
@@ -73,6 +75,7 @@ public class HexBoard extends Canvas {
     public void setHexCellHandler(Polygon handler) {hexCellHandler = handler;}
 
     public int getMaxScore() {return maxScore;}
+    public int getMaxTurns() {return maxTurns;}
 
     /**
      * Update board dimensions to best fit the container

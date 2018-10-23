@@ -2,14 +2,11 @@ package Omega.Graphics;
 
 import Omega.Agent.*;
 import Omega.Agent.Random;
-import Omega.Agent.TranspositionTable.TableItem;
-import Omega.Agent.TranspositionTable.TranspositionTable;
 import Omega.Library.Enum.Color;
 import Omega.Graphics.Component.Scoreboard;
 import Omega.Graphics.Component.TurnInformation;
 import Omega.Graphics.Hexagon.HexBoard;
 import Omega.Library.Config;
-import Omega.Library.Enum.Flag;
 import Omega.Library.Model.Player;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
@@ -44,7 +41,7 @@ public class Controller implements Initializable {
     public final Color[] colors = new Color[]{Color.WHITE, Color.BLACK, Color.RED, Color.BLUE};
     private Map<Color, Integer> colorSelectMap = new HashMap<Color, Integer>();
 
-    private HexBoard board;
+    public HexBoard board;
     public Player[] players;
     public int currentTurnPlayerId = 0;
     public int currentTurnTilesLeft = Config.NUM_PLAYERS;
@@ -138,8 +135,9 @@ public class Controller implements Initializable {
 
             JFXComboBox<Label> jfxCombo = new JFXComboBox<Label>();
             jfxCombo.getItems().add(new Label(Human.class.getName()));
+            jfxCombo.getItems().add(new Label(ID_TT_MO_Timed.class.getName()));
             jfxCombo.getItems().add(new Label(ID_TT_MoveOrdering.class.getName()));
-            jfxCombo.getItems().add(new Label(IterativeDeepeningTT.class.getName()));
+            jfxCombo.getItems().add(new Label(ID_TranspositionTable.class.getName()));
             jfxCombo.getItems().add(new Label(IterativeDeepening.class.getName()));
             jfxCombo.getItems().add(new Label(NegaMax.class.getName()));
             jfxCombo.getItems().add(new Label(AlphaBetaBasic.class.getName()));
@@ -151,7 +149,6 @@ public class Controller implements Initializable {
                 try {
                     Agent agent = (Agent) Class.forName(newVal.getText()).newInstance();
                     players[ic].setAgent(agent);
-                    reloadScoreboard();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -272,7 +269,7 @@ public class Controller implements Initializable {
         polyP1.getChildren().add(Omega.Graphics.Hexagon.Polygon.getPolygon(players[0].getColor(), 1.5));
         polyP2.getChildren().clear();
         polyP2.getChildren().add(Omega.Graphics.Hexagon.Polygon.getPolygon(players[1].getColor(), 1.5));
-        reloadScoreboard();
+//        reloadScoreboard();
     }
 
     public Player[] getPlayers() {
@@ -341,10 +338,10 @@ public class Controller implements Initializable {
 
     @FXML protected void StartGame(ActionEvent event) {
         resetBoard((int) sliderHexSize.getValue());
+        reloadScoreboard();
         startContainer.setVisible(false);
         SetBoardContainerVisible(true);
         SetPlayerContainerVisible(true);
-        reloadScoreboard();
         handleTurn();
     }
 
@@ -353,12 +350,20 @@ public class Controller implements Initializable {
         SetPlayerContainerVisible(false);
         startContainer.setVisible(true);
         currentTurnTilesLeft = Config.NUM_PLAYERS;
-        for (Player player : players) {
-            if (player.getColor() == Color.WHITE) {
-                currentTurnPlayerId = player.getId();
+
+        // Reset players
+        try {
+            for (Player player : players) {
+                if (player.getColor() == Color.WHITE) {
+                    currentTurnPlayerId = player.getId();
+                }
+                player.setTotalTurnsLeft(0);
+                Agent agent = (Agent) player.getAgent().getClass().newInstance();
+                player.setAgent(agent);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-//        initPlayerSelection(Config.NUM_PLAYERS);
     }
     private void resetBoard(int size) {
         board = new HexBoard(size, this);

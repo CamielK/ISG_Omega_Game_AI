@@ -20,9 +20,10 @@ import java.util.concurrent.TimeUnit;
 /**
  * ID: Iterative deepening using negamax formulation and alpha-beta pruning
  * TT: Using TranspositionTable to store and retrieve known nodes
- * MoveOrdering: Uses move ordering when generating children
+ * MO: Uses move ordering when generating children
+ * Timed: Optimizes search time management
  */
-public class ID_TT_MoveOrdering implements Agent {
+public class ID_TT_MO_Timed implements Agent {
 
     private static int countNodes = 0;
     private static int countNodesEvaluated = 0;
@@ -41,13 +42,21 @@ public class ID_TT_MoveOrdering implements Agent {
         if (tt == null) tt = new TranspositionTable(board.getGameState());
 
         // Time management
-        int maxSearchTime = parent.getTotalTimeLeft() / parent.getTotalTurnsLeft();
-
         long startTime = System.nanoTime();
         int maxDepth = GetMaxGameDepth(board, parent);
+        int maxSearchTime = parent.getTotalTimeLeft() / parent.getTotalTurnsLeft();
+
+        if (parent.getTotalTurnsLeft() == board.getMaxTurns() && parent.getColor() == Color.WHITE) {
+            // First move of game is played randomly to save time
+            new Random().GetMove(parent, board, tilesToPlace);
+        }
+
         final int[] maxDepthReached = {0};
         final Move[] best = {new Move(Integer.MIN_VALUE, null)};
-        System.out.println("Starting ID search with a max possible depth of " + maxDepth + " and a timeout of " + maxSearchTime + " seconds.");
+        long secondsUsed = 0;
+        long depthStartTime = maxSearchTime;
+        boolean done = false;
+        System.out.println("\nStarting ID search with a max possible depth of " + maxDepth + " and a timeout of " + maxSearchTime + " seconds.");
         for (int depth = 1; depth <= maxDepth; depth++) {
             countNodes = 0;
             countNodesEvaluated = 0;
@@ -55,8 +64,20 @@ public class ID_TT_MoveOrdering implements Agent {
             countTTStored = 0;
             countPruned = 0;
             try {
+                if (done) {
+                    break;
+                }
                 long secondsLeft = maxSearchTime - ((System.nanoTime() - startTime) / 1000000000);
+                secondsUsed = depthStartTime - secondsLeft;
+                depthStartTime = secondsLeft;
                 if (secondsLeft <= 0) {
+                    // Ran out of time
+                    done = true;
+                    break;
+                } else if (secondsUsed*2 > secondsLeft) {
+                    System.out.println("Skipping depth " + depth + ". " + secondsLeft + " seconds is not expected to complete this depth.");
+                    // Avoid wasted search (depth+1 is not expected to be finished in time)
+                    done = true;
                     break;
                 } else {
                     System.out.println("Searching depth " + depth + ", time left: " + secondsLeft + " seconds");
@@ -134,8 +155,8 @@ public class ID_TT_MoveOrdering implements Agent {
         }
 
         // Update used time
-        long secondsUsed = (System.nanoTime() - startTime) / 1000000000;
-        parent.setTotalTimeLeft((int) (parent.getTotalTimeLeft()-secondsUsed));
+        long secondsUsedTotal = (System.nanoTime() - startTime) / 1000000000;
+        parent.setTotalTimeLeft((int) (parent.getTotalTimeLeft()-secondsUsedTotal));
         parent.setTotalTurnsLeft(parent.getTotalTurnsLeft()-1);
 
         // Store best board for debugging

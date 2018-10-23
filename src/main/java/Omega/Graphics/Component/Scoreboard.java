@@ -37,7 +37,7 @@ public class Scoreboard {
             }
 
             title.getChildren().addAll(poly, sep, label);
-            Label label3 = new Label("<" + player.getAgent().getClass().getName() + ">");
+            Label label3 = new Label("Agent: " + player.getAgent().getClass().getName().replaceFirst("Omega.Agent.",""));
             Label label4 = new Label("Score: " + player.getScore());
             parent.playersBox.getChildren().addAll(title, label3, label4);
             if (player.getId() < parent.players.length-1) {

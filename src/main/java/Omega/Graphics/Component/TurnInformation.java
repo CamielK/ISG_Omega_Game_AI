@@ -2,6 +2,7 @@ package Omega.Graphics.Component;
 
 import Omega.Graphics.Controller;
 import Omega.Library.Config;
+import Omega.Library.Model.Player;
 import com.jfoenix.controls.JFXButton;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
@@ -75,14 +76,29 @@ public class TurnInformation {
             btnEnd.setOnAction(event -> parent.endTurn());
             parent.currentPlayerArea.getChildren().addAll(tilesContainer, new Separator(Orientation.VERTICAL), btnUndo, btnEnd);
         } else {
+            Player player = parent.players[parent.currentTurnPlayerId];
             VBox box = new VBox(3);
             box.setAlignment(Pos.CENTER);
             Label labelAI = new Label("Waiting for AI move...");
             labelAI.getStyleClass().add("player-label");
-            box.getChildren().addAll(labelAI, new Label(parent.players[parent.currentTurnPlayerId].getAgent().getClass().getSimpleName()));
+            box.getChildren().addAll(labelAI, new Label(player.getAgent().getClass().getSimpleName()));
             ProgressIndicator loading = new ProgressIndicator();
             loading.getStyleClass().add("progress-indicator");
             parent.currentPlayerArea.getChildren().addAll(box, loading);
+
+            // time info
+            VBox box2 = new VBox(3);
+            box2.setAlignment(Pos.CENTER);
+            Label label2 = new Label("Expected turn time:");
+            label2.getStyleClass().add("player-label");
+            Label time = new Label("");
+            if (player.getTotalTurnsLeft() != 0) {
+                time = new Label(Long.toString(player.getTotalTimeLeft()/player.getTotalTurnsLeft()) + " seconds (max)");
+            } else {
+                time = new Label(Long.toString(Config.MAX_GAME_TIME / parent.board.getMaxTurns()) + " seconds (estimate)");
+            }
+            box2.getChildren().addAll(label2, time);
+            parent.currentPlayerArea.getChildren().add(box2);
         }
     }
 }
