@@ -35,7 +35,7 @@ public class Main extends Application {
         if (!System.getProperty("java.version").startsWith("1.8.")) {
             System.out.println("Invalid Java runtime environment version! Java 8 is required to run this application.\nPlease change your java version or run this jar file from the command line (e.g. 'C:\\java\\jdk1.8.0_144\\bin\\java.exe -jar .\\OmegaAI.jar')");
 //            System.exit(1);
-            JOptionPane.showMessageDialog(null, "Invalid Java version. Java 8 is required to run this application.\nPlease change your java version or run this jar file from the command line (e.g. 'C:\\java\\jdk1.8.0_144\\bin\\java.exe -jar .\\OmegaAI.jar')", "Java Version Error",  JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Invalid Java version. Java 8 is required to run this application.\n\nPlease change your java path version or run this jar file from the command line:\n\" & 'C:\\Program Files\\Java\\jdk1.8.0_144\\bin\\java.exe' -jar .\\OmegaAI.jar \"\n\n", "Java Version Error",  JOptionPane.ERROR_MESSAGE);
         }
         launch(args);
     }
