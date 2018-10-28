@@ -131,9 +131,11 @@ public class Controller implements Initializable {
             // White player starts the game!
             if (used_colors_shuffled[i] == Color.WHITE) {
                 currentTurnPlayerId = i;
-                player.setAgent(new ID_TT_MoveOrdering());
-            } else {
                 player.setAgent(new Random());
+//                player.setAgent(new ID_TT_MO_Timed());
+            } else {
+//                player.setAgent(new Random());
+                player.setAgent(new ID_TT_MO_Timed());
             }
 
             JFXComboBox<Label> jfxCombo = new JFXComboBox<Label>();
