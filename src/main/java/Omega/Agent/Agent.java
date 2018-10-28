@@ -18,7 +18,7 @@ public interface Agent {
     /**
      * Method places the tilesToPlace on the board specific to its class implementation
      */
-    void GetMove(Player parent, HexBoard board, Color[] tilesToPlace);
+    void GetMove(Player parent, HexBoard board, Color[] tilesToPlace) throws Exception;
 
     default int EvaluateNode(HexTile[][] node, HexBoard board, Player parent) {
         return EvaluateNode(node, board, parent, false);
@@ -48,13 +48,8 @@ public interface Agent {
         int scoreSelfNormalized = (int) (((double) EvaluationSelf.gameEvalScore / (double) board.getMaxScore()) * 100);
         int scoreEnemyNormalized = (int) (((double) EvaluationEnemy.gameEvalScore / (double) board.getMaxScore()) * 100);
 
+        // self_score + (self_num_groups_with_size_>1 * 3) + (self_score - enemy_score * enemy_num_groups_with_size_3)
         return scoreSelfNormalized + EvaluationSelf.groupsWithSize(2, Operator.GREATER_OR_EQUAL)*3 + (scoreSelfNormalized-scoreEnemyNormalized*EvaluationEnemy.groupsWithSize(3, Operator.EQUAL));
-
-        //TODO: expand eval func
-        // - avg distance to other tiles (higher is better)
-        // - try to make groups of 3
-        // - try to make enemy groups >3
-        // - try to join enemy groups
     }
 
     /**

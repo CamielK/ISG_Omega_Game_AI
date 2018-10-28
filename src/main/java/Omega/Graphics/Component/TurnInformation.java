@@ -93,7 +93,7 @@ public class TurnInformation {
             label2.getStyleClass().add("player-label");
             Label time = new Label("");
             if (player.getTotalTurnsLeft() != 0) {
-                time = new Label(Long.toString(player.getTotalTimeLeft()/player.getTotalTurnsLeft()) + " seconds (max)");
+                time = new Label(Long.toString(player.getTotalTimeLeft()/player.getTotalTurnsLeft()) + " seconds (estimate)");
             } else {
                 time = new Label(Long.toString(Config.MAX_GAME_TIME / parent.board.getMaxTurns()) + " seconds (estimate)");
             }

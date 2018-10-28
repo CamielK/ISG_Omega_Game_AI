@@ -13,6 +13,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -25,17 +26,23 @@ import java.util.concurrent.TimeUnit;
  */
 public class ID_TT_MO_Timed implements Agent {
 
+    private HexBoard board;
+    private Player parent;
+    private Color[] tilesToPlace;
+    private TranspositionTable tt = null;
+    private boolean useTT = true;
+
+    // Stats
     private static int countNodes = 0;
     private static int countNodesEvaluated = 0;
     private static int countTTUsed = 0;
     private static int countTTStored = 0;
     private static int countPruned = 0;
-    private HexBoard board;
-    private Player parent;
-    private Color[] tilesToPlace;
-    private TranspositionTable tt = null;
+    private ArrayList<Integer> searchTimes = new ArrayList<>();
+    private ArrayList<Integer> maxDepths = new ArrayList<>();
+    private ArrayList<Integer> reachedDepths = new ArrayList<>();
 
-    public void GetMove(Player parent, HexBoard board, Color[] tilesToPlace) {
+    public void GetMove(Player parent, HexBoard board, Color[] tilesToPlace) throws Exception {
         this.board = board;
         this.parent = parent;
         this.tilesToPlace = tilesToPlace;
@@ -44,11 +51,30 @@ public class ID_TT_MO_Timed implements Agent {
         // Time management
         long startTime = System.nanoTime();
         int maxDepth = GetMaxGameDepth(board, parent);
-        int maxSearchTime = parent.getTotalTimeLeft() / parent.getTotalTurnsLeft();
+        int maxSearchTime = parent.getTotalTimeLeft() / Math.max(2,parent.getTotalTurnsLeft()-3);
+        maxDepths.add(maxDepth);
 
-        if (parent.getTotalTurnsLeft() == board.getMaxTurns() && parent.getColor() == Color.WHITE) {
-            // First move of game is played randomly to save time
-            new Random().GetMove(parent, board, tilesToPlace);
+        if (parent.getTotalTurnsLeft() > (.8*board.getMaxTurns())) {
+            // Opening moves.. only search 1 ply to save time
+            maxDepth = 1;
+            maxSearchTime = 10;
+        } else if (parent.getTotalTurnsLeft() > (.4*board.getMaxTurns())) {
+            // Early game, use increasingly more time
+            maxSearchTime = (int) ((maxSearchTime * (1 - ((parent.getTotalTurnsLeft() - .5*board.getMaxTurns()) / (.5*board.getMaxTurns())))) * 1.8);
+        } else {
+            // mid/end game, use increasingly less time
+            maxSearchTime = (int) ((maxSearchTime * (parent.getTotalTurnsLeft() / (.5*board.getMaxTurns()))) * 2);
+        }
+        if (maxSearchTime < 15) {
+            maxSearchTime = 15; // min
+        }
+        searchTimes.add(maxSearchTime);
+
+        // Dont use the transposition table on the very last move to prevent bugs
+        if (parent.getTotalTurnsLeft() == 1) {
+            useTT = false;
+        } else {
+            useTT = true;
         }
 
         final int[] maxDepthReached = {0};
@@ -128,29 +154,40 @@ public class ID_TT_MO_Timed implements Agent {
                 e.printStackTrace();
             }
         }
+        reachedDepths.add(maxDepthReached[0]);
         System.out.println("IterativeDeepening found score: " + best[0].score + ", max depth reached: " + maxDepthReached[0]);
 
-        // Get the first 2 unplaced tiles placed by the algorithm and place them on the real board
-        HexTile[][] realBoard = board.getGameState();
-        boolean placedWhite = false;
-        boolean placedBlack = false;
-        for (int i = 0; i < maxDepth; i++) {
-            for (int q = 0; q < best[0].board.length; q++) {
-                for (int r = 0; r < best[0].board.length; r++) {
-                    HexTile tile = best[0].board[q][r];
-                    if (tile != null && tile.getPlacedId() == i && realBoard[q][r].getColor() == Color.EMPTY) {
-                        if (tile.getColor() == Color.WHITE) {
-                            if (!placedWhite) realBoard[q][r].setColor(tile.getColor());
-                            placedWhite = true;
-                        } else {
-                            if (!placedBlack) realBoard[q][r].setColor(tile.getColor());
-                            placedBlack = true;
-                        }
-                        if (placedBlack && placedWhite) {
-                            i = maxDepth;
+        if (maxDepthReached[0]<=0) {
+            throw new Exception("Search algorithm failed to search at least 1 ply");
+//            new Random().GetMove(parent, board, tilesToPlace); // If search failed or depth reached <= 0, play a random move instead
+        } else {
+            // Get the first 2 unplaced tiles placed by the algorithm and place them on the real board
+            HexTile[][] realBoard = board.getGameState();
+            boolean placedWhite = false;
+            boolean placedBlack = false;
+            for (int i = 1; i < maxDepth+1; i++) {
+                for (int q = 0; q < best[0].board.length; q++) {
+                    for (int r = 0; r < best[0].board.length; r++) {
+                        HexTile tile = best[0].board[q][r];
+                        if (tile != null && tile.getPlacedId() == i && realBoard[q][r].getColor() == Color.EMPTY) {
+                            if (tile.getColor() == Color.WHITE) {
+                                if (!placedWhite) realBoard[q][r].setColor(tile.getColor());
+                                placedWhite = true;
+                            } else {
+                                if (!placedBlack) realBoard[q][r].setColor(tile.getColor());
+                                placedBlack = true;
+                            }
+                            if (placedBlack && placedWhite) {
+                                i = maxDepth+1;
+                            }
                         }
                     }
                 }
+            }
+
+            // Make sure tiles were placed
+            if (!placedBlack || !placedWhite) {
+                throw new Exception("Search algorithm failed to place both tiles!");
             }
         }
 
@@ -174,7 +211,10 @@ public class ID_TT_MO_Timed implements Agent {
         // Check transposition table
         double olda = alpha;
         boolean useBestMove = false;
-        TableItem n = tt.get(node);
+        TableItem n = null;
+        if (useTT) {
+            n = tt.get(node);
+        }
         if (n != null) {
             countTTUsed++;
             if (n.depth >= depth) {

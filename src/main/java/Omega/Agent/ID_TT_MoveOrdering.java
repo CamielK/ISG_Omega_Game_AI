@@ -29,6 +29,7 @@ public class ID_TT_MoveOrdering implements Agent {
     private static int countTTUsed = 0;
     private static int countTTStored = 0;
     private static int countPruned = 0;
+    private boolean useTT = true;
     private HexBoard board;
     private Player parent;
     private Color[] tilesToPlace;
@@ -42,6 +43,13 @@ public class ID_TT_MoveOrdering implements Agent {
 
         // Time management
         int maxSearchTime = parent.getTotalTimeLeft() / parent.getTotalTurnsLeft();
+
+        // Dont use the transposition table on the very last move to prevent bugs
+        if (parent.getTotalTurnsLeft() == 1) {
+            useTT = false;
+        } else {
+            useTT = true;
+        }
 
         long startTime = System.nanoTime();
         int maxDepth = GetMaxGameDepth(board, parent);
@@ -153,7 +161,10 @@ public class ID_TT_MoveOrdering implements Agent {
         // Check transposition table
         double olda = alpha;
         boolean useBestMove = false;
-        TableItem n = tt.get(node);
+        TableItem n = null;
+        if (useTT) {
+            n = tt.get(node);
+        }
         if (n != null) {
             countTTUsed++;
             if (n.depth >= depth) {

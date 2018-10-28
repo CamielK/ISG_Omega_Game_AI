@@ -28,12 +28,13 @@ public class ID_TranspositionTable implements Agent {
     private static int countTTUsed = 0;
     private static int countTTStored = 0;
     private static int countPruned = 0;
+    private boolean useTT = true;
     private HexBoard board;
     private Player parent;
     private Color[] tilesToPlace;
     private TranspositionTable tt = null;
 
-    public void GetMove(Player parent, HexBoard board, Color[] tilesToPlace) {
+    public void GetMove(Player parent, HexBoard board, Color[] tilesToPlace) throws Exception {
         this.board = board;
         this.parent = parent;
         this.tilesToPlace = tilesToPlace;
@@ -41,6 +42,13 @@ public class ID_TranspositionTable implements Agent {
 
         // Time management
         int maxSearchTime = parent.getTotalTimeLeft() / parent.getTotalTurnsLeft();
+
+        // Dont use the transposition table on the very last move to prevent bugs
+        if (parent.getTotalTurnsLeft() == 1) {
+            useTT = false;
+        } else {
+            useTT = true;
+        }
 
         long startTime = System.nanoTime();
         int maxDepth = GetMaxGameDepth(board, parent);
@@ -112,7 +120,7 @@ public class ID_TranspositionTable implements Agent {
         HexTile[][] realBoard = board.getGameState();
         boolean placedWhite = false;
         boolean placedBlack = false;
-        for (int i = 0; i < maxDepth; i++) {
+        for (int i = 1; i < maxDepth+1; i++) {
             for (int q = 0; q < best[0].board.length; q++) {
                 for (int r = 0; r < best[0].board.length; r++) {
                     HexTile tile = best[0].board[q][r];
@@ -125,11 +133,17 @@ public class ID_TranspositionTable implements Agent {
                             placedBlack = true;
                         }
                         if (placedBlack && placedWhite) {
-                            i = maxDepth;
+                            i = maxDepth+1;
                         }
                     }
                 }
             }
+        }
+
+
+        // Make sure tiles were placed
+        if (!placedBlack || !placedWhite) {
+            throw new Exception("Search algorithm failed to place both tiles!");
         }
 
         // Update used time
@@ -152,7 +166,10 @@ public class ID_TranspositionTable implements Agent {
         // Check transposition table
         double olda = alpha;
         boolean useBestMove = false;
-        TableItem n = tt.get(node);
+        TableItem n = null;
+        if (useTT) {
+            n = tt.get(node);
+        }
         if (n != null) {
             countTTUsed++;
             if (n.depth >= depth) {

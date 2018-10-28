@@ -1,6 +1,8 @@
 package Omega.Graphics.Component;
 
+import Omega.Agent.Human;
 import Omega.Graphics.Controller;
+import Omega.Library.Config;
 import Omega.Library.Model.Player;
 import javafx.animation.Interpolator;
 import javafx.animation.ScaleTransition;
@@ -40,6 +42,10 @@ public class Scoreboard {
             Label label3 = new Label("Agent: " + player.getAgent().getClass().getName().replaceFirst("Omega.Agent.",""));
             Label label4 = new Label("Score: " + player.getScore());
             parent.playersBox.getChildren().addAll(title, label3, label4);
+            if (!(player.getAgent() instanceof Human) && player.getTotalTimeLeft() < Config.MAX_GAME_TIME) {
+                Label label5 = new Label("Search time remaining: " + (int) Math.floor(player.getTotalTimeLeft()/60) + "m" + player.getTotalTimeLeft()%60 + "s");
+                parent.playersBox.getChildren().add(label5);
+            }
             if (player.getId() < parent.players.length-1) {
                 parent.playersBox.getChildren().add(new Separator());
             }

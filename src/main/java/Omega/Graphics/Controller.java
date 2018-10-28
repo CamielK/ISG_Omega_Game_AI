@@ -131,23 +131,26 @@ public class Controller implements Initializable {
             // White player starts the game!
             if (used_colors_shuffled[i] == Color.WHITE) {
                 currentTurnPlayerId = i;
+                player.setAgent(new ID_TT_MoveOrdering());
+            } else {
+                player.setAgent(new Random());
             }
 
             JFXComboBox<Label> jfxCombo = new JFXComboBox<Label>();
-            jfxCombo.getItems().add(new Label(Human.class.getName()));
-            jfxCombo.getItems().add(new Label(ID_TT_MO_Timed.class.getName()));
-            jfxCombo.getItems().add(new Label(ID_TT_MoveOrdering.class.getName()));
-            jfxCombo.getItems().add(new Label(ID_TranspositionTable.class.getName()));
-            jfxCombo.getItems().add(new Label(IterativeDeepening.class.getName()));
-            jfxCombo.getItems().add(new Label(NegaMax.class.getName()));
-            jfxCombo.getItems().add(new Label(AlphaBetaBasic.class.getName()));
-            jfxCombo.getItems().add(new Label(MinMaxBasic.class.getName()));
-            jfxCombo.getItems().add(new Label(Random.class.getName()));
-            jfxCombo.setPromptText(players[i].getAgent().getClass().getName());
+            jfxCombo.getItems().add(new Label(Human.class.getName().replaceFirst("Omega.Agent.", "")));
+            jfxCombo.getItems().add(new Label(ID_TT_MO_Timed.class.getName().replaceFirst("Omega.Agent.", "") + " (Best agent)"));
+            jfxCombo.getItems().add(new Label(ID_TT_MoveOrdering.class.getName().replaceFirst("Omega.Agent.", "")));
+            jfxCombo.getItems().add(new Label(ID_TranspositionTable.class.getName().replaceFirst("Omega.Agent.", "")));
+            jfxCombo.getItems().add(new Label(IterativeDeepening.class.getName().replaceFirst("Omega.Agent.", "")));
+            jfxCombo.getItems().add(new Label(NegaMax.class.getName().replaceFirst("Omega.Agent.", "")));
+            jfxCombo.getItems().add(new Label(AlphaBetaBasic.class.getName().replaceFirst("Omega.Agent.", "")));
+            jfxCombo.getItems().add(new Label(MinMaxBasic.class.getName().replaceFirst("Omega.Agent.", "")));
+            jfxCombo.getItems().add(new Label(Random.class.getName().replaceFirst("Omega.Agent.", "")));
+            jfxCombo.setPromptText(players[i].getAgent().getClass().getName().replaceFirst("Omega.Agent.", ""));
             int ic= i;
             jfxCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
                 try {
-                    Agent agent = (Agent) Class.forName(newVal.getText()).newInstance();
+                    Agent agent = (Agent) Class.forName("Omega.Agent." + newVal.getText().replace(" (Best agent)", "")).newInstance();
                     players[ic].setAgent(agent);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -188,7 +191,12 @@ public class Controller implements Initializable {
                         @Override
                         protected Void call() throws Exception {
                             // Background work: request a move from the agent given the current game state
-                            currentPlayer.GetMove(board, Arrays.copyOfRange(colors, 0, Config.NUM_PLAYERS));
+                            try {
+                                currentPlayer.GetMove(board, Arrays.copyOfRange(colors, 0, Config.NUM_PLAYERS));
+                            } catch (Exception e) {
+                                System.out.println(e.getMessage());
+                                throw e;
+                            }
                             currentTurnTilesLeft = 0;
 
                             // Add JavaFX interactions as a runLater

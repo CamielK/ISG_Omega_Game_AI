@@ -22,7 +22,7 @@ public class Player {
         number = id + 1;
     }
 
-    public void GetMove(HexBoard board, Color[] tilesToPlace) {
+    public void GetMove(HexBoard board, Color[] tilesToPlace) throws Exception{
         // If this is the first move of the game, reset resource restrictions
         if (totalTurnsLeft == 0) {
             totalTurnsLeft = board.getMaxTurns();
